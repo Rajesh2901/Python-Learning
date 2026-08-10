@@ -1,0 +1,4 @@
+/* Home specific styles (mostly handled by styles.css) */
+.hero-section {
+    animation: fadeIn 0.8s ease forwards;
+}

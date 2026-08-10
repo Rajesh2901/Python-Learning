@@ -1,0 +1,64 @@
+<div class="layout-sidebar">
+    <!-- Sidebar Topics Navigation -->
+    <aside class="sidebar">
+        <h3>Course Map</h3>
+        <ul class="topic-list" id="topic-sidebar-list">
+            <li *ngFor="let topic of topics; let i = index" 
+                class="topic-item" 
+                [class.active]="i === currentTopicIndex"
+                [class.completed]="topic.completed"
+                (click)="selectTopic(i)">
+                <span>{{ topic.title }}</span>
+                <span class="status-dot"></span>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Core Details Display -->
+    <div class="main-content-pane">
+        <div class="topic-header">
+            <span id="topic-breadcrumb" class="breadcrumb">{{ topics[currentTopicIndex].phase }} : {{ topics[currentTopicIndex].breadcrumb }}</span>
+            <h2 id="topic-title">{{ topics[currentTopicIndex].title }}</h2>
+        </div>
+
+        <div class="topic-body" id="topic-body-content" [innerHTML]="topics[currentTopicIndex].content">
+            <!-- Content injected dynamically -->
+        </div>
+
+        <!-- Examples Container -->
+        <div class="examples-container">
+            <h3>Interactive Demos & Live Problems</h3>
+            <div class="examples-tab-nav" id="examples-nav">
+                <button *ngFor="let ex of topics[currentTopicIndex].examples; let i = index"
+                        class="tab-btn"
+                        [class.active]="i === currentExampleIndex"
+                        (click)="selectExample(i)">
+                    {{ ex.title }}
+                </button>
+            </div>
+            
+            <div class="example-card" id="active-example-card">
+                <div class="example-desc" id="example-desc" [innerHTML]="topics[currentTopicIndex].examples[currentExampleIndex].description">
+                    <!-- Description injected dynamically -->
+                </div>
+                
+                <!-- Editor Block -->
+                <div class="sandbox-container">
+                    <div class="sandbox-header">
+                        <span class="filename"><i class="fa-brands fa-python"></i> main.py</span>
+                        <div class="sandbox-controls">
+                            <button id="btn-run-code" class="btn btn-success btn-sm" (click)="runCode()"><i class="fa-solid fa-play"></i> Run Code</button>
+                            <button id="btn-reset-code" class="btn btn-secondary btn-sm" (click)="resetCode()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                        </div>
+                    </div>
+                    <textarea id="code-editor" class="code-textarea" spellcheck="false" [(ngModel)]="editorCode"></textarea>
+                    
+                    <div class="console-box">
+                        <div class="console-header">Console Output</div>
+                        <pre id="console-output" [style.color]="consoleColor === 'green' ? 'var(--color-accent-green)' : (consoleColor === 'red' ? 'var(--color-accent-red)' : 'var(--color-accent-cyan)')">{{ consoleOutput }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

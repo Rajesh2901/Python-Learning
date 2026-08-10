@@ -1,0 +1,59 @@
+<div class="visualizer-sandbox-layout">
+    <div class="visualizer-settings">
+        <h2>3D Algorithms Sandbox</h2>
+        <p>Select a concept from the list below to render it inside the interactive 3D WebGL screen.</p>
+        
+        <div class="vis-selector-list">
+            <button class="vis-select-btn" [class.active]="activeMode === 'loops'" (click)="setVisualization('loops')">
+                <i class="fa-solid fa-rotate"></i>
+                <div>
+                    <h4>Iteration Loops</h4>
+                    <small>Sequential variable iteration</small>
+                </div>
+            </button>
+            <button class="vis-select-btn" [class.active]="activeMode === 'recursion'" (click)="setVisualization('recursion')">
+                <i class="fa-solid fa-tree"></i>
+                <div>
+                    <h4>Recursive Trees</h4>
+                    <small>Visualizing Call Stack depths</small>
+                </div>
+            </button>
+            <button class="vis-select-btn" [class.active]="activeMode === 'structures'" (click)="setVisualization('structures')">
+                <i class="fa-solid fa-circle-nodes"></i>
+                <div>
+                    <h4>Linked Lists</h4>
+                    <small>Pointers & Heap node references</small>
+                </div>
+            </button>
+        </div>
+
+        <!-- Visualizer Controls -->
+        <div class="visualizer-controls-panel">
+            <h3>Animation Controls</h3>
+            <div class="control-group">
+                <label for="slider-speed">Playback Speed</label>
+                <input type="range" id="slider-speed" min="1" max="100" [(ngModel)]="playbackSpeed" (ngModelChange)="onSpeedChange()">
+            </div>
+            <div class="control-buttons">
+                <button id="btn-vis-play" class="btn btn-secondary" (click)="togglePlay()">
+                    <i class="fa-solid" [class.fa-play]="!isPlaying" [class.fa-pause]="isPlaying"></i> 
+                    {{ isPlaying ? 'Pause' : 'Play' }}
+                </button>
+                <button id="btn-vis-step" class="btn btn-secondary" (click)="step()"><i class="fa-solid fa-forward-step"></i> Step</button>
+                <button id="btn-vis-reset" class="btn btn-secondary" (click)="reset()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+            </div>
+            <div id="vis-details-card" class="vis-details-card">
+                <h4>Current State Frame</h4>
+                <div class="state-row"><span>Step:</span> <strong>{{ currentStep }}</strong></div>
+                <div class="state-row"><span>Variables:</span> <code>{{ hudVars }}</code></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="visualizer-canvas-container">
+        <div #sandboxCanvas id="three-sandbox-canvas"></div>
+        <div class="canvas-instructions">
+            <i class="fa-solid fa-hand-pointer"></i> Drag to rotate | Scroll to zoom | Hover to inspect
+        </div>
+    </div>
+</div>

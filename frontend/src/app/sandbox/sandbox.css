@@ -1,0 +1,58 @@
+/* Sandbox visualizer specific styles */
+.visualizer-sandbox-layout {
+    animation: fadeIn 0.6s ease forwards;
+}
+.vis-select-btn {
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.02);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    border-radius: var(--border-radius-md);
+    transition: var(--transition-smooth);
+    color: var(--color-text-muted);
+}
+.vis-select-btn.active {
+    background: rgba(0, 243, 255, 0.08);
+    border-color: rgba(0, 243, 255, 0.25);
+    color: var(--color-accent-cyan);
+}
+.vis-select-btn h4 {
+    color: var(--color-text-main);
+    margin-bottom: 0.15rem;
+}
+.control-group input[type="range"] {
+    width: 100%;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+.control-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.vis-details-card {
+    background: rgba(10, 14, 26, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    padding: 1rem;
+    font-size: 0.8rem;
+    margin-top: 1rem;
+}
+.vis-details-card h4 {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-muted);
+}
+.state-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+.state-row code {
+    color: var(--color-accent-cyan);
+}

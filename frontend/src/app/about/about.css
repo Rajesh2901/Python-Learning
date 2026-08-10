@@ -1,0 +1,46 @@
+/* About specific styles */
+.about-container {
+    animation: fadeIn 0.7s ease forwards;
+}
+.about-hero {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+.about-hero h2 {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+.about-lead {
+    font-size: 1.15rem;
+    color: var(--color-text-muted);
+}
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+.about-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+}
+.about-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+.about-card ul {
+    list-style-position: inside;
+    color: var(--color-text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+@media (max-width: 768px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+}

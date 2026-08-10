@@ -1,0 +1,41 @@
+<div class="hero-section">
+    <div class="hero-text">
+        <div class="badge">Dynamic 3D Visuals Included</div>
+        <h1>Master Python with the <span class="text-gradient">80/20 Roadmap</span></h1>
+        <p class="hero-lead">Accelerate your Python skills. Write real code in an in-browser sandbox and see loops, recursion, and data structures rendered in real-time 3D.</p>
+        <div class="hero-ctas">
+            <a routerLink="/topics" class="btn btn-primary btn-lg">Explore Topics</a>
+            <a routerLink="/sandbox" class="btn btn-secondary btn-lg"><i class="fa-solid fa-play"></i> Watch 3D Demos</a>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="hero-canvas-container">
+            <div #heroCanvas id="hero-three-canvas"></div>
+            <div class="canvas-overlay">
+                <h3>Live Call Stack</h3>
+                <div class="stack-bar current">factorial(3)</div>
+                <div class="stack-bar">factorial(4)</div>
+                <div class="stack-bar">factorial(5)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Grid -->
+<div class="features-grid">
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+        <h3>Interactive Pyodide Runner</h3>
+        <p>Run Python code straight in your browser tab. No server installs or command-line setups required.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
+        <h3>3D Concepts Visualizer</h3>
+        <p>Rotate, pan, and zoom models mapping recursion stacks, iteration counts, and memory nodes.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-database"></i></div>
+        <h3>Python FastAPI Backend</h3>
+        <p>Connect your progress and database logs directly to a lightweight SQLAlchemy + SQLite service.</p>
+    </div>
+</div>
