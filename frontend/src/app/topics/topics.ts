@@ -287,7 +287,17 @@ def safe_divide(a, b):
         });
       },
       error: (err) => {
-        console.warn('Backend progress API offline, using local state.', err);
+        console.warn('Backend progress API offline, loading from localStorage.', err);
+        const localProgress = localStorage.getItem('python_mastery_progress');
+        if (localProgress) {
+          const completedIds: string[] = JSON.parse(localProgress);
+          completedIds.forEach(id => {
+            const match = this.topics.find(t => t.id === id);
+            if (match) {
+              match.completed = true;
+            }
+          });
+        }
       }
     });
   }
@@ -377,13 +387,21 @@ def safe_divide(a, b):
     const topic = this.topics[this.currentTopicIndex];
     topic.completed = true;
     
+    // Save to localStorage
+    const localProgress = localStorage.getItem('python_mastery_progress');
+    let completedIds: string[] = localProgress ? JSON.parse(localProgress) : [];
+    if (!completedIds.includes(topic.id)) {
+      completedIds.push(topic.id);
+    }
+    localStorage.setItem('python_mastery_progress', JSON.stringify(completedIds));
+    
     // Save to database backend
     this.apiService.saveProgress(topic.id, true).subscribe({
       next: (res) => {
         console.log('Saved topic progress to database:', res);
       },
       error: (err) => {
-        console.warn('Backend DB offline, progress saved locally.', err);
+        console.warn('Backend DB offline, progress saved in browser cache (localStorage).', err);
       }
     });
   }
