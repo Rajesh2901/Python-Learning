@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Mastery | Learn Interactive 3D Programming</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="An interactive, beautiful, and educational 3D visual playground for learning Python. Learn loops, recursion, and data structures.">
+    <meta name="keywords" content="Python, Learn Python, 3D visualization, Three.js, Pyodide, WebGL coding">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Prism.js Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- External scripts: Three.js, OrbitControls, and Pyodide -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+</head>
+<body>
+    <!-- Premium Backdrop Glows -->
+    <div class="glow-bg glow-1"></div>
+    <div class="glow-bg glow-2"></div>
+
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <div class="logo">
+            <span class="logo-icon"><i class="fa-brands fa-python"></i></span>
+            <span class="logo-text">Python<span class="highlight">Mastery</span></span>
+        </div>
+        <nav class="nav-links">
+            <a href="#home" class="nav-link active" id="nav-home"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="#topics" class="nav-link" id="nav-topics"><i class="fa-solid fa-book-open"></i> Topics</a>
+            <a href="#visualizer" class="nav-link" id="nav-visualizer"><i class="fa-solid fa-cubes"></i> 3D Sandbox</a>
+            <a href="#about" class="nav-link" id="nav-about"><i class="fa-solid fa-circle-info"></i> About</a>
+        </nav>
+        <div class="header-actions">
+            <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme"><i class="fa-solid fa-moon"></i></button>
+            <a href="#visualizer" class="btn btn-primary btn-sm">Try 3D Sandbox</a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="content-container">
+        <!-- HOME SECTION -->
+        <section id="sec-home" class="page-section active">
+            <div class="hero-section">
+                <div class="hero-text">
+                    <div class="badge">Dynamic 3D Visuals Included</div>
+                    <h1>Master Python with the <span class="text-gradient">80/20 Roadmap</span></h1>
+                    <p class="hero-lead">Accelerate your Python skills. Write real code in an in-browser sandbox and see loops, recursion, and data structures rendered in real-time 3D.</p>
+                    <div class="hero-ctas">
+                        <a href="#topics" class="btn btn-primary btn-lg">Explore Topics</a>
+                        <a href="#visualizer" class="btn btn-secondary btn-lg"><i class="fa-solid fa-play"></i> Watch 3D Demos</a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="hero-canvas-container">
+                        <div id="hero-three-canvas"></div>
+                        <div class="canvas-overlay">
+                            <h3>Live Call Stack</h3>
+                            <div class="stack-bar current">factorial(3)</div>
+                            <div class="stack-bar">factorial(4)</div>
+                            <div class="stack-bar">factorial(5)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Interactive Pyodide Runner</h3>
+                    <p>Run Python code straight in your browser tab. No server installs or command-line setups required.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
+                    <h3>3D Concepts Visualizer</h3>
+                    <p>Rotate, pan, and zoom models mapping recursion stacks, iteration counts, and memory nodes.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-bullseye"></i></div>
+                    <h3>Practical Curriculum</h3>
+                    <p>Focused topics for engineers wanting to quickly bridge the gap from JS/TS into enterprise Python.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOPICS SECTION -->
+        <section id="sec-topics" class="page-section">
+            <div class="layout-sidebar">
+                <!-- Sidebar Topics Navigation -->
+                <aside class="sidebar">
+                    <h3>Course Map</h3>
+                    <ul class="topic-list" id="topic-sidebar-list">
+                        <!-- Populated dynamically via JS -->
+                    </ul>
+                </aside>
+
+                <!-- Core Details Display -->
+                <div class="main-content-pane">
+                    <div class="topic-header">
+                        <span id="topic-breadcrumb" class="breadcrumb">PHASE 1 : MODULE 1.1</span>
+                        <h2 id="topic-title">Variables & Data Types</h2>
+                    </div>
+
+                    <div class="topic-body" id="topic-body-content">
+                        <!-- Dynamic Markdown/HTML Content -->
+                    </div>
+
+                    <!-- Examples Container -->
+                    <div class="examples-container">
+                        <h3>Interactive Demos & Live Problems</h3>
+                        <div class="examples-tab-nav" id="examples-nav">
+                            <!-- Dynamic tabs for examples -->
+                        </div>
+                        <div class="example-card" id="active-example-card">
+                            <div class="example-desc" id="example-desc">
+                                <!-- Explanation text -->
+                            </div>
+                            
+                            <!-- Editor Block -->
+                            <div class="sandbox-container">
+                                <div class="sandbox-header">
+                                    <span class="filename"><i class="fa-brands fa-python"></i> main.py</span>
+                                    <div class="sandbox-controls">
+                                        <button id="btn-run-code" class="btn btn-success btn-sm"><i class="fa-solid fa-play"></i> Run Code</button>
+                                        <button id="btn-reset-code" class="btn btn-secondary btn-sm"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                                    </div>
+                                </div>
+                                <textarea id="code-editor" class="code-textarea" spellcheck="false"></textarea>
+                                
+                                <div class="console-box">
+                                    <div class="console-header">Console Output</div>
+                                    <pre id="console-output">Console is ready. Press "Run Code" to compile...</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISUALIZER SANDBOX -->
+        <section id="sec-visualizer" class="page-section">
+            <div class="visualizer-sandbox-layout">
+                <div class="visualizer-settings">
+                    <h2>3D Algorithms Sandbox</h2>
+                    <p>Select a concept from the list below to render it inside the interactive 3D WebGL screen.</p>
+                    
+                    <div class="vis-selector-list">
+                        <button class="vis-select-btn active" data-vis="loops">
+                            <i class="fa-solid fa-rotate"></i>
+                            <div>
+                                <h4>Iteration Loops</h4>
+                                <small>Sequential variable iteration</small>
+                            </div>
+                        </button>
+                        <button class="vis-select-btn" data-vis="recursion">
+                            <i class="fa-solid fa-tree"></i>
+                            <div>
+                                <h4>Recursive Trees</h4>
+                                <small>Visualizing Call Stack depths</small>
+                            </div>
+                        </button>
+                        <button class="vis-select-btn" data-vis="structures">
+                            <i class="fa-solid fa-circle-nodes"></i>
+                            <div>
+                                <h4>Linked Lists</h4>
+                                <small>Pointers & Heap node references</small>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Visualizer Controls -->
+                    <div class="visualizer-controls-panel">
+                        <h3>Animation Controls</h3>
+                        <div class="control-group">
+                            <label for="slider-speed">Playback Speed</label>
+                            <input type="range" id="slider-speed" min="1" max="100" value="50">
+                        </div>
+                        <div class="control-buttons">
+                            <button id="btn-vis-play" class="btn btn-secondary"><i class="fa-solid fa-play"></i> Play</button>
+                            <button id="btn-vis-step" class="btn btn-secondary"><i class="fa-solid fa-forward-step"></i> Step</button>
+                            <button id="btn-vis-reset" class="btn btn-secondary"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                        </div>
+                        <div id="vis-details-card" class="vis-details-card">
+                            <h4>Current State Frame</h4>
+                            <div class="state-row"><span>Step:</span> <strong id="state-step">1</strong></div>
+                            <div class="state-row"><span>Variables:</span> <code id="state-vars">i = 0, sum = 0</code></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="visualizer-canvas-container">
+                    <div id="three-sandbox-canvas"></div>
+                    <div class="canvas-instructions">
+                        <i class="fa-solid fa-hand-pointer"></i> Drag to rotate | Scroll to zoom | Hover to inspect
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT SECTION -->
+        <section id="sec-about" class="page-section">
+            <div class="about-container">
+                <div class="about-hero">
+                    <h2>Empowering Visual Learners</h2>
+                    <p class="about-lead">Python Mastery was created to bridge the gap between dry syntax manuals and spatial visual thinking.</p>
+                </div>
+                <div class="about-grid">
+                    <div class="about-card">
+                        <h3>Why 3D?</h3>
+                        <p>Research shows that mapping abstract software concepts (like trees, heaps, stacks, and iterations) into physical 3D spaces aids memory retention and helps debug logical structural errors faster.</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>Our Tech Stack</h3>
+                        <ul>
+                            <li><strong>Three.js</strong>: WebGL framework for 3D physics rendering.</li>
+                            <li><strong>Pyodide</strong>: Compiled CPython inside WebAssembly for immediate browser compilation.</li>
+                            <li><strong>Prism.js</strong>: Lightning fast token highlighting.</li>
+                            <li><strong>CSS3 Grid & Variables</strong>: Modern flex systems for complete accessibility.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <p>&copy; 2026 Python Mastery. Designed for rapid developers. Built using clean Web standards.</p>
+    </footer>
+
+    <!-- Prism JS for highlights -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    
+    <!-- Code files -->
+    <script src="three-visualizer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
