@@ -233,6 +233,463 @@ def safe_divide(a, b):
 `
             }
         ]
+    },
+    {
+        id: "1.7",
+        phase: "Phase 1: Core Language",
+        title: "File I/O & CSV handling",
+        breadcrumb: "Module 1.7",
+        content: `
+            <p>File operations in Python are performed using the <code>open()</code> function. The recommended practice is to use the <code>with</code> statement, which creates a <strong>context manager</strong> that automatically closes the file when execution exits the block, preventing resource leaks.</p>
+            <p>For structured tabular data, Python includes a built-in <code>csv</code> module that makes parsing comma-separated files straightforward.</p>
+        `,
+        examples: [
+            {
+                title: "Example: Reading & Writing Files",
+                description: "Observe how to open, write, and read a plain text file safely using the <code>with</code> block.",
+                code: `# Writing a file
+with open("data.txt", "w") as file:
+    file.write("Hello from Python Mastery!\\n")
+    file.write("This is a second line.\\n")
+
+# Reading the file back
+with open("data.txt", "r") as file:
+    content = file.read()
+    print("File Content:")
+    print(content)`
+            },
+            {
+                title: "Live Problem 1.7",
+                description: "<strong>Challenge:</strong> Write a script that parses a simulated CSV data string, calculates the total revenue (<code>units * price</code>) for each product, and prints the grand total of all revenue.",
+                code: `import csv
+import io
+
+# Simulated sales CSV data
+csv_data = """product,units,price
+Widget,10,25.5
+Gadget,5,80.0
+Gizmo,20,15.0"""
+
+# Use csv.DictReader on a StringIO object to parse
+data_stream = io.StringIO(csv_data.strip())
+reader = csv.DictReader(data_stream)
+
+grand_total = 0.0
+
+for row in reader:
+    # 1. Extract and cast variables
+    # 2. Compute revenue
+    # 3. Print product name and calculated revenue
+    # Your code here...
+    pass
+
+# 4. Print grand total
+# Your code here...
+`
+            }
+        ]
+    },
+    {
+        id: "2.1",
+        phase: "Phase 2: Pythonic Idioms",
+        title: "Classes & OOP",
+        breadcrumb: "Module 2.1",
+        content: `
+            <p>Object-Oriented Programming (OOP) in Python centers on classes defined with the <code>class</code> keyword. Python classes support constructor initializers (<code>__init__</code>), instance methods (which must accept <code>self</code> as the first parameter), class attributes, and multi-class inheritance.</p>
+        `,
+        examples: [
+            {
+                title: "Example: Basic Class",
+                description: "Declare a simple bank account class with deposit and withdraw methods.",
+                code: `class BankAccount:
+    bank_name = "Python Bank"  # Class attribute (shared)
+
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance  # Instance attribute
+
+    def deposit(self, amount):
+        if amount > 0:
+            self.balance += amount
+            print(f"Deposited {amount}. New Balance: {self.balance}")
+
+    def __str__(self):
+        return f"{self.owner}'s account: ${self.balance}"
+
+acc = BankAccount("Rajesh", 1000)
+acc.deposit(200)
+print(acc)`
+            },
+            {
+                title: "Live Problem 2.1",
+                description: "<strong>Challenge:</strong> Extend <code>BankAccount</code> by implementing a <code>transfer(self, target_account, amount)</code> method that withdraws from the current account and deposits into another, raising a <code>ValueError</code> if there are insufficient funds.",
+                code: `class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            raise ValueError("Insufficient funds")
+        self.balance -= amount
+
+    # Write the transfer method here
+    def transfer(self, target_account, amount):
+        pass
+
+# Test code
+a1 = BankAccount("Rajesh", 1000)
+a2 = BankAccount("Priya", 500)
+try:
+    a1.transfer(a2, 300)
+    print(f"Rajesh Balance: {a1.balance}") # Expected: 700
+    print(f"Priya Balance: {a2.balance}")   # Expected: 800
+except Exception as e:
+    print("Error:", e)
+`
+            }
+        ]
+    },
+    {
+        id: "2.2",
+        phase: "Phase 2: Pythonic Idioms",
+        title: "Context Managers",
+        breadcrumb: "Module 2.2",
+        content: `
+            <p>Context managers control resource setup and teardown inside <code>with</code> blocks. You can implement custom context managers by creating a class with <code>__enter__</code> and <code>__exit__</code> methods, or by using the <code>@contextmanager</code> decorator from the standard <code>contextlib</code> module.</p>
+        `,
+        examples: [
+            {
+                title: "Example: Custom Timer",
+                description: "Create a context manager that benchmarks execution speed.",
+                code: `import time
+
+class Timer:
+    def __enter__(self):
+        self.start = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        elapsed = time.time() - self.start
+        print(f"Completed in {elapsed:.6f} seconds")
+
+# Benchmark a comprehension
+with Timer():
+    sum(x**2 for x in range(100_000))`
+            },
+            {
+                title: "Live Problem 2.2",
+                description: "<strong>Challenge:</strong> Write a custom context manager <code>suppress_errors</code> that handles any exceptions raised inside its block, printing a warning instead of crashing the program.",
+                code: `class suppress_errors:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Hint: return True to suppress the exception, else False
+        if exc_type is not None:
+            print(f"Suppressed error: {exc_val}")
+            return True
+        return False
+
+# Test Code
+with suppress_errors():
+    print("About to divide by zero...")
+    print(1 / 0)
+
+print("Execution successfully continued after the block!")
+`
+            }
+        ]
+    },
+    {
+        id: "2.3",
+        phase: "Phase 2: Pythonic Idioms",
+        title: "Working with JSON & APIs",
+        breadcrumb: "Module 2.3",
+        content: `
+            <p>Interacting with web endpoints is highly common. In Python, you can fetch remote resources using the standard <code>urllib</code> library or the third-party <code>requests</code> package. To decode JSON responses, use the <code>json</code> library or call the <code>.json()</code> method on your response payload.</p>
+        `,
+        examples: [
+            {
+                title: "Example: Python JSON Parsing",
+                description: "Observe how Python translates JSON strings into standard dictionaries and lists.",
+                code: `import json
+
+json_data = '{"name": "Rajesh", "role": "Senior Engineer", "skills": ["Python", "Angular"]}'
+profile = json.loads(json_data)
+
+print("Parsed Name:", profile["name"])
+print("Skills list:", profile["skills"])`
+            },
+            {
+                title: "Live Problem 2.3",
+                description: "<strong>Challenge:</strong> Simulate fetching API users and counting how many users live in a city whose name starts with a vowel (A, E, I, O, U).",
+                code: `# Simulating fetched API data
+users = [
+    {"name": "Leanne Graham", "city": "Gwenborough"},
+    {"name": "Ervin Howell", "city": "Ellicott City"},
+    {"name": "Patricia Lebsack", "city": "Oakland"},
+    {"name": "Chelsey Dietrich", "city": "Ipswich"},
+    {"name": "Mrs. Dennis Schulist", "city": "South Port"}
+]
+
+vowel_cities_count = 0
+vowels = "AEIOU"
+
+# Iterate over users and filter cities starting with vowels
+# Your code here...
+
+print("Vowel starting cities count:", vowel_cities_count) # Expected: 2 (Ellicott City, Oakland)
+`
+            }
+        ]
+    },
+    {
+        id: "2.4",
+        phase: "Phase 2: Pythonic Idioms",
+        title: "Testing with pytest",
+        breadcrumb: "Module 2.4",
+        content: `
+            <p>Testing in Python is dominated by the <code>pytest</code> framework. It uses standard <code>assert</code> statements, eliminating the need to write verbose JUnit/unittest patterns like <code>self.assertEqual()</code>.</p>
+        `,
+        examples: [
+            {
+                title: "Example: Simple Unit Test",
+                description: "A demonstration of simple pytest functions.",
+                code: `def add(a, b):
+    return a + b
+
+# pytest picks up functions prefixed with test_
+def test_add_positive():
+    assert add(2, 3) == 5
+
+def test_add_negative():
+    assert add(-1, -1) == -2
+
+# Run tests
+test_add_positive()
+test_add_negative()
+print("All assertions passed!")`
+            },
+            {
+                title: "Live Problem 2.4",
+                description: "<strong>Challenge:</strong> Write simple assertions to test your <code>safe_divide</code> exception-handling logic from Problem 1.6.",
+                code: `def safe_divide(a, b):
+    try:
+        return a / b
+    except (ZeroDivisionError, TypeError):
+        return None
+
+# Write test assertions here to check:
+# 1. Normal division (10 / 2) returns 5.0
+# 2. Division by zero (10 / 0) returns None
+# 3. Invalid types (10 / "a") returns None
+
+# Your assertions:
+`
+            }
+        ]
+    },
+    {
+        id: "3.1",
+        phase: "Phase 3: Applied Track",
+        title: "FastAPI REST APIs",
+        breadcrumb: "Module 3.1",
+        content: `
+            <p>FastAPI is a modern, high-performance web framework for building APIs in Python. It relies on <strong>Pydantic</strong> for data verification and automatic OpenAPI documentation generation.</p>
+        `,
+        examples: [
+            {
+                title: "Example: Basic FastAPI Server",
+                description: "A simple FastAPI endpoint routing implementation.",
+                code: `from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Task(BaseModel):
+    title: str
+    done: bool = False
+
+@app.get("/status")
+def get_status():
+    return {"status": "online"}
+
+print("API Router initialized. Endpoints available: /status")`
+            },
+            {
+                title: "Live Problem 3.1",
+                description: "<strong>Challenge:</strong> Complete a basic FastAPI router logic to add task schemas to an in-memory list and fetch tasks filtered by priority.",
+                code: `from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List, Optional
+
+app = FastAPI()
+
+class TaskSchema(BaseModel):
+    id: int
+    title: str
+    priority: str  # e.g., "high", "medium", "low"
+
+tasks_db = [
+    TaskSchema(id=1, title="Build WebGL Canvas", priority="high"),
+    TaskSchema(id=2, title="Refactor CSS variables", priority="low")
+]
+
+# Complete this route to filter by query priority if provided
+@app.get("/tasks")
+def read_tasks(priority: Optional[str] = None):
+    # Your code here...
+    return tasks_db
+`
+            }
+        ]
+    },
+    {
+        id: "3.2",
+        phase: "Phase 3: Applied Track",
+        title: "Environment & Auth Basics",
+        breadcrumb: "Module 3.2",
+        content: `
+            <p>FastAPI apps handle credentials securely by loading settings from a <code>.env</code> file. For API protection, JSON Web Tokens (JWT) are signed and verified to establish session state, mapping directly to interceptor architectures.</p>
+        `,
+        examples: [
+            {
+                title: "Example: Environment Loading",
+                description: "Load secret variables securely using python-dotenv.",
+                code: `# Simulating os environment loading
+import os
+
+# Set dummy env key
+os.environ["SECRET_KEY"] = "super-secret-key-123"
+
+# Read key
+secret = os.getenv("SECRET_KEY")
+print("Successfully loaded SECRET_KEY:", secret[:5] + "...")`
+            },
+            {
+                title: "Live Problem 3.2",
+                description: "<strong>Challenge:</strong> Write a mock JWT signer function that encodes a dictionary token payload and verifies it.",
+                code: `import base64
+import json
+
+def mock_sign_jwt(payload: dict) -> str:
+    # Simulating simple JWT encoding (header.payload.signature)
+    payload_bytes = json.dumps(payload).encode('utf-8')
+    encoded_payload = base64.urlsafe_b64encode(payload_bytes).decode('utf-8')
+    header = base64.urlsafe_b64encode(b'{"alg":"HS256"}').decode('utf-8')
+    signature = "signature-placeholder"
+    return f"{header}.{encoded_payload}.{signature}"
+
+def mock_decode_jwt(token: str) -> dict:
+    parts = token.split('.')
+    payload_decoded = base64.urlsafe_b64decode(parts[1].encode('utf-8')).decode('utf-8')
+    return json.loads(payload_decoded)
+
+# Test encoding and decoding a user payload
+user_payload = {"username": "rajesh", "role": "admin"}
+token = mock_sign_jwt(user_payload)
+print("Token:", token)
+
+decoded = mock_decode_jwt(token)
+print("Decoded Payload:", decoded) # Expected to match user_payload
+`
+            }
+        ]
+    },
+    {
+        id: "4.1",
+        phase: "Phase 4: Consolidation",
+        title: "Type Hints & mypy",
+        breadcrumb: "Module 4.1",
+        content: `
+            <p>Type hints bring static analysis capabilities to Python, enabling compile-time validation (via tools like <code>mypy</code>) while keeping Python's dynamic runtime execution intact.</p>
+        `,
+        examples: [
+            {
+                title: "Example: Type Annotations",
+                description: "Check how functions specify input and return types.",
+                code: `from typing import List, Dict, Optional
+
+def compute_average(scores: List[float]) -> float:
+    return sum(scores) / len(scores)
+
+def find_user(user_id: int) -> Optional[str]:
+    users: Dict[int, str] = {1: "Rajesh", 2: "Priya"}
+    return users.get(user_id)
+
+print(compute_average([95.5, 88.0, 92.5]))
+print(find_user(1))`
+            },
+            {
+                title: "Live Problem 4.1",
+                description: "<strong>Challenge:</strong> Correct the type signatures in this function to resolve static analysis lint warnings.",
+                code: `from typing import List, Optional
+
+# Challenge: Correct type annotations for this function
+def filter_and_format_salaries(salaries: list, min_cutoff: float) -> list:
+    filtered = [s for s in salaries if s >= min_cutoff]
+    return [f"\\\${val:,.2f}" for val in filtered]
+
+# Test
+print(filter_and_format_salaries([45000.5, 90000.0, 72000.5], 50000.0))
+`
+            }
+        ]
+    },
+    {
+        id: "4.2",
+        phase: "Phase 4: Consolidation",
+        title: "Reading Real Code",
+        breadcrumb: "Module 4.2",
+        content: `
+            <p>The final milestone of Python mastery is reading and parsing real open-source repositories (such as <code>requests</code>, <code>fastapi</code>, or <code>httpie</code>) to learn advanced structures and styling patterns.</p>
+        `,
+        examples: [
+            {
+                title: "Example: Checking Module Attributes",
+                description: "Learn how to inspect functions inside an active module at runtime.",
+                code: `import csv
+
+# List all public attributes inside the csv module
+attributes = [attr for attr in dir(csv) if not attr.startswith("_")]
+print("Public CSV APIs:")
+print(attributes[:10])`
+            },
+            {
+                title: "Live Problem 4.2",
+                description: "<strong>Challenge:</strong> Write a recursive function that traverses a directory structure (simulating standard module tree lookups) to count total Python source files.",
+                code: `# Simulating directory tree data
+source_tree = {
+    "name": "project",
+    "files": ["main.py", "README.md"],
+    "subdirs": [
+        {
+            "name": "utils",
+            "files": ["helpers.py", "formatting.py", "notes.txt"],
+            "subdirs": []
+        },
+        {
+            "name": "tests",
+            "files": ["test_helpers.py"],
+            "subdirs": []
+        }
+    ]
+}
+
+def count_py_files(node: dict) -> int:
+    count = sum(1 for f in node.get("files", []) if f.endswith(".py"))
+    for subdir in node.get("subdirs", []):
+        count += count_py_files(subdir)
+    return count
+
+print("Total Python files found:", count_py_files(source_tree)) # Expected: 4
+`
+            }
+        ]
     }
 ];
 
