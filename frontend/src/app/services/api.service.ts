@@ -47,6 +47,36 @@ export interface UserPerformanceLog {
   created_at?: string;
 }
 
+export interface DocumentationTopic {
+  id: number;
+  topic_name: string;
+  python_org_url: string;
+  raw_html_content?: string;
+  parsed_markdown: string;
+  last_fetched: string;
+}
+
+export interface ChallengeProblem {
+  id: number;
+  title: string;
+  difficulty: string;
+  category: string;
+  description: string;
+  starter_code: string;
+  solution_code: string;
+  reference_url: string;
+}
+
+export interface CodeReviewSimulation {
+  id: number;
+  title: string;
+  category: string;
+  code_with_bugs: string;
+  bug_line_number: number;
+  explanation: string;
+  corrected_code: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -120,5 +150,23 @@ export class ApiService {
 
   getRecommendations(): Observable<InterviewQuestion[]> {
     return this.http.get<InterviewQuestion[]>(`${this.baseUrl}/recommendations`);
+  }
+
+  // Documentation & Code Review endpoints
+  getDocsTopics(): Observable<DocumentationTopic[]> {
+    return this.http.get<DocumentationTopic[]>(`${this.baseUrl}/docs/topics`);
+  }
+
+  fetchDocsTopic(topicName: string): Observable<DocumentationTopic> {
+    return this.http.get<DocumentationTopic>(`${this.baseUrl}/docs/fetch?topic_name=${encodeURIComponent(topicName)}`);
+  }
+
+  getChallenges(category?: string): Observable<ChallengeProblem[]> {
+    const url = category ? `${this.baseUrl}/challenges?category=${encodeURIComponent(category)}` : `${this.baseUrl}/challenges`;
+    return this.http.get<ChallengeProblem[]>(url);
+  }
+
+  getCodeReviews(): Observable<CodeReviewSimulation[]> {
+    return this.http.get<CodeReviewSimulation[]>(`${this.baseUrl}/codereview`);
   }
 }

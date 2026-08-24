@@ -40,3 +40,36 @@ class UserPerformanceLog(Base):
     status = Column(String) # Success, Fail
     execution_time_ms = Column(Integer)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class DocumentationTopic(Base):
+    __tablename__ = "documentation_topics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    topic_name = Column(String, unique=True, index=True)
+    python_org_url = Column(String)
+    raw_html_content = Column(Text, nullable=True)
+    parsed_markdown = Column(Text, nullable=True)
+    last_fetched = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class ChallengeProblem(Base):
+    __tablename__ = "challenge_problems"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    difficulty = Column(String)
+    category = Column(String) # Metaclasses, Async, Decorators, etc.
+    description = Column(Text)
+    starter_code = Column(Text)
+    solution_code = Column(Text)
+    reference_url = Column(String)
+
+class CodeReviewSimulation(Base):
+    __tablename__ = "code_review_simulations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    category = Column(String)
+    code_with_bugs = Column(Text)
+    bug_line_number = Column(Integer)
+    explanation = Column(Text)
+    corrected_code = Column(Text)

@@ -1,0 +1,119 @@
+<div class="docs-container">
+  <!-- Left Side: Topic Index & Milestones -->
+  <div class="topics-sidebar">
+    <h2>Advanced Reference</h2>
+    <p class="section-desc">Dynamically fetched from official docs.python.org reference specifications.</p>
+    
+    <div class="topics-list">
+      <div *ngFor="let topic of topics" class="topic-item-card" [class.active]="selectedTopic?.id === topic.id" (click)="selectTopic(topic)">
+        <div class="topic-item-header">
+          <h4>{{ topic.topic_name }}</h4>
+          <span class="status-dot" [class.completed]="isCompleted(topic.topic_name)"></span>
+        </div>
+        <span class="source-link">docs.python.org</span>
+      </div>
+    </div>
+
+    <!-- Milestones & Gamification Achievements -->
+    <div class="milestones-card">
+      <h3>🏆 Advanced Achievements</h3>
+      <div class="milestones-grid">
+        <div class="achievement" [class.unlocked]="isCompleted('Metaclasses')">
+          <span class="ach-icon">👑</span>
+          <span class="ach-title">Meta Master</span>
+        </div>
+        <div class="achievement" [class.unlocked]="isCompleted('Python Data Model')">
+          <span class="ach-icon">⚙️</span>
+          <span class="ach-title">Dunder Wizard</span>
+        </div>
+        <div class="achievement" [class.unlocked]="isCompleted('Decorators')">
+          <span class="ach-icon">🎀</span>
+          <span class="ach-title">Fn Wrapper</span>
+        </div>
+        <div class="achievement" [class.unlocked]="isCompleted('Asynchronous Programming')">
+          <span class="ach-icon">⚡</span>
+          <span class="ach-title">Async Loop</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Documentation Text & Challenge Workspace -->
+  <div class="details-workspace" *ngIf="selectedTopic">
+    <div class="docs-header">
+      <div class="header-titles">
+        <h2>{{ selectedTopic.topic_name }}</h2>
+        <span class="sync-date">Synced: {{ selectedTopic.last_fetched | date:'mediumTime' }}</span>
+      </div>
+      <div class="header-actions">
+        <button (click)="refreshTopic()" class="btn-refresh" [disabled]="isFetching">
+          {{ isFetching ? 'Syncing...' : 'Sync Python.org' }}
+        </button>
+        <a [href]="selectedTopic.python_org_url" target="_blank" class="btn-external">Official Doc ↗</a>
+      </div>
+    </div>
+
+    <div class="workspace-grid">
+      <!-- Reference Segment View -->
+      <div class="doc-view-card">
+        <h3>Reference Document</h3>
+        <div class="doc-body-content">
+          <pre class="markdown-pre">{{ selectedTopic.parsed_markdown }}</pre>
+        </div>
+      </div>
+
+      <!-- Practice Challenges & Editor -->
+      <div class="challenges-card">
+        <div class="challenge-selector-header" *ngIf="challenges.length > 0">
+          <h3>Expert Challenge Problem</h3>
+          <select [(ngModel)]="activeChallengeIndex" (change)="selectChallenge()" class="challenge-select-box">
+            <option *ngFor="let c of challenges; let i = index" [value]="i">{{ c.title }} ({{ c.difficulty }})</option>
+          </select>
+        </div>
+
+        <div class="challenge-content-pane" *ngIf="activeChallenge">
+          <p class="challenge-desc">{{ activeChallenge.description }}</p>
+          
+          <div class="editor-header">
+            <h4>Code Editor</h4>
+            <div class="editor-buttons">
+              <button (click)="loadSolution()" class="btn-secondary btn-xs">Load Solution</button>
+              <button (click)="runCode()" class="btn-primary btn-xs" [disabled]="isRunning">
+                {{ isRunning ? 'Running...' : 'Run Code' }}
+              </button>
+            </div>
+          </div>
+          <textarea [(ngModel)]="editorCode" class="monospace-editor" rows="12"></textarea>
+
+          <div class="console-box">
+            <h4>Console Log</h4>
+            <div class="console-log-area">
+              <pre *ngIf="stdout" class="stdout">{{ stdout }}</pre>
+              <pre *ngIf="stderr" class="stderr">{{ stderr }}</pre>
+              <pre *ngIf="error" class="error">{{ error }}</pre>
+              <div *ngIf="!stdout && !stderr && !error" class="console-placeholder">
+                Run your code to compile and verify results.
+              </div>
+            </div>
+            <div class="completion-banner" *ngIf="isSolved">
+              🎉 Challenge Completed! Competency Milestone Unlocked!
+            </div>
+          </div>
+        </div>
+
+        <div class="no-challenges-placeholder" *ngIf="challenges.length === 0">
+          <p>No expert challenges registered for this category.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Placeholder -->
+  <div class="details-placeholder" *ngIf="!selectedTopic">
+    <div class="placeholder-content">
+      <span class="icon">📖</span>
+      <h2>Select an Advanced Topic</h2>
+      <p>Pick a topic from the left sidebar to view the parsed python.org documentation, sync live reference structures, and execute corresponding coding challenges.</p>
+    </div>
+  </div>
+</div>

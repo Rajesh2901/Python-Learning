@@ -1,0 +1,101 @@
+<div class="review-container">
+  <div class="review-header">
+    <h1>Code Review Simulation</h1>
+    <p class="subtitle">Act as a Senior Code Reviewer. Find the bug, analyze the anti-pattern, and approve corrections.</p>
+  </div>
+
+  <div class="review-content">
+    <!-- Simulations List (Left Pane) -->
+    <div class="simulations-sidebar">
+      <h3>Active Submissions</h3>
+      <div class="simulations-list">
+        <div *ngFor="let sim of simulations" class="sim-item-card" [class.active]="selectedSim?.id === sim.id" (click)="selectSimulation(sim)">
+          <div class="sim-item-header">
+            <h4>{{ sim.title }}</h4>
+            <span class="status-badge" [class.success]="isReviewed(sim.id)">
+              {{ isReviewed(sim.id) ? 'Approved' : 'Pending' }}
+            </span>
+          </div>
+          <span class="sim-category">{{ sim.category }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Simulation IDE (Right Pane) -->
+    <div class="simulation-workspace" *ngIf="selectedSim">
+      <div class="workspace-grid">
+        <!-- Interactive Code Blocks (Left Workspace) -->
+        <div class="code-review-card">
+          <div class="card-header">
+            <h3>Submitted CodeSnippet</h3>
+            <span class="instruction-label">Click on the line containing the security or logical bug:</span>
+          </div>
+          
+          <div class="code-lines-container">
+            <div *ngFor="let line of codeLines; let i = index" class="code-line-row" [class.selected]="selectedLineIndex === i" (click)="selectLine(i)">
+              <span class="line-number">{{ i + 1 }}</span>
+              <pre class="line-content">{{ line }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inspector & Diff Viewer (Right Workspace) -->
+        <div class="inspector-card">
+          <h3>Review Inspector</h3>
+          
+          <div class="inspector-content-pane">
+            <!-- Line not selected -->
+            <div class="no-selection-state" *ngIf="selectedLineIndex === null">
+              <span class="inspector-icon">🔍</span>
+              <p>Select a line of code on the left containing code smells, mutable allocations, or leaking variables to inspect.</p>
+            </div>
+
+            <!-- Clean line selected -->
+            <div class="clean-line-state" *ngIf="selectedLineIndex !== null && selectedLineIndex !== selectedSim.bug_line_number">
+              <span class="inspector-icon warning">⚠️</span>
+              <h4>Line {{ selectedLineIndex + 1 }} appears clean</h4>
+              <p>No critical anti-patterns detected on this line. Check default arguments, resource loops, or context blocks.</p>
+            </div>
+
+            <!-- Buggy line selected -->
+            <div class="buggy-line-state" *ngIf="selectedLineIndex === selectedSim.bug_line_number">
+              <div class="bug-alert-header">
+                <span class="icon">🚨</span>
+                <h4>Anti-Pattern Detected on Line {{ selectedLineIndex + 1 }}!</h4>
+              </div>
+              
+              <div class="explanation-box">
+                <h5>Critical Explanation:</h5>
+                <p>{{ selectedSim.explanation }}</p>
+              </div>
+
+              <div class="diff-box">
+                <h5>Proposed Correction:</h5>
+                <pre class="corrected-pre">{{ selectedSim.corrected_code }}</pre>
+              </div>
+
+              <div class="action-footer" *ngIf="!isReviewed(selectedSim.id)">
+                <button (click)="approveCorrection()" class="btn-approve">Approve Correction</button>
+              </div>
+            </div>
+
+            <!-- Already Approved Overlay -->
+            <div class="approved-success-banner" *ngIf="isReviewed(selectedSim.id) && selectedLineIndex === selectedSim.bug_line_number">
+              <h4>✅ Review Complete</h4>
+              <p>You have approved this code correction. The refactored solution has been merged into main!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection Placeholder -->
+    <div class="workspace-placeholder" *ngIf="!selectedSim">
+      <div class="placeholder-content">
+        <span class="placeholder-icon">🛡️</span>
+        <h2>Select a Code Submission</h2>
+        <p>Pick an active code submission from the left sidebar to start the code review simulation and earn your peer-review credentials.</p>
+      </div>
+    </div>
+  </div>
+</div>

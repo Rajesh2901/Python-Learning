@@ -72,3 +72,55 @@ class UserPerformanceLogResponse(UserPerformanceLogBase):
 
     class Config:
         from_attributes = True
+
+# New Documentation & Code Review Schemas
+class DocumentationTopicBase(BaseModel):
+    topic_name: str
+    python_org_url: str
+    raw_html_content: Optional[str] = None
+    parsed_markdown: Optional[str] = None
+
+class DocumentationTopicCreate(DocumentationTopicBase):
+    pass
+
+class DocumentationTopicResponse(DocumentationTopicBase):
+    id: int
+    last_fetched: datetime
+
+    class Config:
+        from_attributes = True
+
+class ChallengeProblemBase(BaseModel):
+    title: str
+    difficulty: str
+    category: str
+    description: str
+    starter_code: str
+    solution_code: str
+    reference_url: str
+
+class ChallengeProblemCreate(ChallengeProblemBase):
+    pass
+
+class ChallengeProblemResponse(ChallengeProblemBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class CodeReviewSimulationBase(BaseModel):
+    title: str
+    category: str
+    code_with_bugs: str
+    bug_line_number: int
+    explanation: str
+    corrected_code: str
+
+class CodeReviewSimulationCreate(CodeReviewSimulationBase):
+    pass
+
+class CodeReviewSimulationResponse(CodeReviewSimulationBase):
+    id: int
+
+    class Config:
+        from_attributes = True
