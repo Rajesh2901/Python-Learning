@@ -38,3 +38,37 @@ class CodeRunResponse(BaseModel):
     stdout: str
     stderr: str
     error: Optional[str] = None
+
+class InterviewQuestionBase(BaseModel):
+    title: str
+    difficulty: str
+    category: str
+    frequency_index: float
+    company_tags: str
+    problem_statement: str
+    starter_code: str
+    solution_code: str
+
+class InterviewQuestionCreate(InterviewQuestionBase):
+    pass
+
+class InterviewQuestionResponse(InterviewQuestionBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class UserPerformanceLogBase(BaseModel):
+    question_id: int
+    status: str
+    execution_time_ms: int
+
+class UserPerformanceLogCreate(UserPerformanceLogBase):
+    pass
+
+class UserPerformanceLogResponse(UserPerformanceLogBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

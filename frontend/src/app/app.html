@@ -8,13 +8,14 @@
         <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
         <a routerLink="/topics" routerLinkActive="active" class="nav-link"><i class="fa-solid fa-book-open"></i> Topics</a>
         <a routerLink="/sandbox" routerLinkActive="active" class="nav-link"><i class="fa-solid fa-cubes"></i> 3D Sandbox</a>
+        <a routerLink="/prep" routerLinkActive="active" class="nav-link"><i class="fa-solid fa-graduation-cap"></i> Interview Prep</a>
         <a routerLink="/about" routerLinkActive="active" class="nav-link"><i class="fa-solid fa-circle-info"></i> About</a>
     </nav>
     <div class="header-actions">
         <button id="theme-toggle" class="icon-btn" (click)="toggleTheme()" aria-label="Toggle Theme">
             <i class="fa-solid" [class.fa-sun]="isLightTheme" [class.fa-moon]="!isLightTheme"></i>
         </button>
-        <a routerLink="/sandbox" class="btn btn-primary btn-sm">Try 3D Sandbox</a>
+        <a routerLink="/prep" class="btn btn-primary btn-sm">Interview Prep</a>
     </div>
 </header>
 

@@ -1,10 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 import * as THREE from 'three';
-
-// Import OrbitControls dynamically to avoid SSR/window reference issues if needed,
-// but since we disabled SSR, we can import it normally or load OrbitControls.
-// Wait! Let's check how we include OrbitControls in npm. In modern Three.js,
-// OrbitControls is inside 'three/examples/jsm/controls/OrbitControls'.
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 @Injectable({
@@ -108,9 +103,20 @@ export class VisualizerInstance {
 
   public setVisualization(type: string) {
     this.isPlaying = false;
+    this.activeMode = type;
+    this.currentStep = 0;
+    this.maxSteps = 8;
+    
     if (type === 'loops') this.setupLoopsScene();
     else if (type === 'recursion') this.setupRecursionScene();
     else if (type === 'structures') this.setupStructuresScene();
+    else if (type === 'Array') this.setupArrayScene();
+    else if (type === 'Linked List') this.setupLinkedListScene();
+    else if (type === 'Stack/Queue' || type === 'stack' || type === 'queue') this.setupStackQueueScene();
+    else if (type === 'Tree') this.setupTreeScene();
+    else if (type === 'Graph') this.setupGraphScene();
+    else if (type === 'Heap') this.setupHeapScene();
+    else if (type === 'Hash Table') this.setupHashTableScene();
   }
 
   public setSpeed(val: number) {
@@ -173,6 +179,7 @@ export class VisualizerInstance {
       const box = new THREE.Mesh(geo, mat);
       box.position.y = i * 0.7 - 1;
       group.add(box);
+      this.objects.push(box);
     }
     this.scene.add(group);
     this.objects.push(group);
@@ -261,7 +268,6 @@ export class VisualizerInstance {
   // Structures View
   public setupStructuresScene() {
     this.clearScene();
-    this.activeMode = 'structures';
     this.currentStep = 0;
     this.maxSteps = 5;
 
@@ -307,6 +313,191 @@ export class VisualizerInstance {
     this.objects.push(this.listCursor);
   }
 
+  // 1. Array Scene
+  private setupArrayScene() {
+    this.clearScene();
+    this.maxSteps = 6;
+    this.camera.position.set(0, 4, 10);
+    if (this.controls) this.controls.target.set(0, 0, 0);
+
+    this.gridHelper = new THREE.GridHelper(20, 20, this.colors.grid, this.colors.grid);
+    this.gridHelper.position.y = -2;
+    this.scene.add(this.gridHelper);
+
+    const numElements = 6;
+    const spacing = 1.4;
+    for (let i = 0; i < numElements; i++) {
+      const x = (i - (numElements - 1) / 2) * spacing;
+      const geo = new THREE.BoxGeometry(1.2, 0.8, 1.2);
+      const mat = new THREE.MeshPhongMaterial({ color: this.colors.node, shininess: 80 });
+      const box = new THREE.Mesh(geo, mat);
+      box.position.set(x, 0, 0);
+      this.scene.add(box);
+      this.objects.push(box);
+      this.listNodes.push(box);
+    }
+    
+    const pointerGeo = new THREE.ConeGeometry(0.2, 0.5, 16);
+    const pointerMat = new THREE.MeshPhongMaterial({ color: this.colors.pointer });
+    this.pointer = new THREE.Mesh(pointerGeo, pointerMat);
+    this.pointer.rotation.x = Math.PI;
+    this.pointer.position.copy(this.listNodes[0].position);
+    this.pointer.position.y += 1.0;
+    this.scene.add(this.pointer);
+    this.objects.push(this.pointer);
+  }
+
+  private setupLinkedListScene() {
+    this.setupStructuresScene();
+  }
+
+  // 2. Stack/Queue Scene
+  private setupStackQueueScene() {
+    this.clearScene();
+    this.maxSteps = 5;
+    this.camera.position.set(0, 3, 8);
+    if (this.controls) this.controls.target.set(0, 1, 0);
+
+    const tubeGeo = new THREE.CylinderGeometry(1.0, 1.0, 4.0, 16, 1, true);
+    const tubeMat = new THREE.MeshBasicMaterial({ color: 0x8e9bb4, wireframe: true, transparent: true, opacity: 0.3 });
+    const tube = new THREE.Mesh(tubeGeo, tubeMat);
+    tube.position.y = 0.5;
+    this.scene.add(tube);
+    this.objects.push(tube);
+
+    for (let i = 0; i < 5; i++) {
+      const geo = new THREE.CylinderGeometry(0.8, 0.8, 0.4, 32);
+      const mat = new THREE.MeshPhongMaterial({ color: this.colors.node, shininess: 80 });
+      const disk = new THREE.Mesh(geo, mat);
+      disk.position.set(0, i * 0.65 - 0.7, 0);
+      disk.visible = false;
+      this.scene.add(disk);
+      this.objects.push(disk);
+      this.listNodes.push(disk);
+    }
+  }
+
+  // 3. Binary Tree Scene
+  private setupTreeScene() {
+    this.clearScene();
+    this.maxSteps = 7;
+    this.camera.position.set(0, 2, 8);
+    if (this.controls) this.controls.target.set(0, 1.5, 0);
+
+    const positions = [
+      new THREE.Vector3(0, 3.5, 0),
+      new THREE.Vector3(-2.2, 2.2, 0),
+      new THREE.Vector3(2.2, 2.2, 0),
+      new THREE.Vector3(-3.2, 0.8, 0),
+      new THREE.Vector3(-1.2, 0.8, 0),
+      new THREE.Vector3(1.2, 0.8, 0),
+      new THREE.Vector3(3.2, 0.8, 0)
+    ];
+
+    const connections = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6]];
+    connections.forEach(([parent, child]) => {
+      const start = positions[parent];
+      const end = positions[child];
+      const path = new THREE.LineCurve3(start, end);
+      const edgeGeo = new THREE.TubeGeometry(path, 4, 0.04, 8, false);
+      const edgeMat = new THREE.MeshPhongMaterial({ color: 0x8e9bb4 });
+      const edge = new THREE.Mesh(edgeGeo, edgeMat);
+      this.scene.add(edge);
+      this.objects.push(edge);
+    });
+
+    positions.forEach((pos) => {
+      const geo = new THREE.SphereGeometry(0.35, 32, 32);
+      const mat = new THREE.MeshPhongMaterial({ color: this.colors.node, shininess: 90 });
+      const node = new THREE.Mesh(geo, mat);
+      node.position.copy(pos);
+      this.scene.add(node);
+      this.objects.push(node);
+      this.listNodes.push(node);
+    });
+  }
+
+  // 4. Graph Scene
+  private setupGraphScene() {
+    this.clearScene();
+    this.maxSteps = 6;
+    this.camera.position.set(0, 2, 8);
+    if (this.controls) this.controls.target.set(0, 1, 0);
+
+    const positions = [
+      new THREE.Vector3(0, 2.5, 0),
+      new THREE.Vector3(-2, 1.2, 1),
+      new THREE.Vector3(2, 1.2, -1),
+      new THREE.Vector3(-1.5, -0.8, 0.5),
+      new THREE.Vector3(1.5, -0.8, -0.5),
+      new THREE.Vector3(0, -1.8, 0)
+    ];
+
+    const connections = [[0, 1], [0, 2], [1, 3], [2, 4], [3, 5], [4, 5], [1, 2], [3, 4]];
+    connections.forEach(([startIdx, endIdx]) => {
+      const start = positions[startIdx];
+      const end = positions[endIdx];
+      const path = new THREE.LineCurve3(start, end);
+      const edgeGeo = new THREE.TubeGeometry(path, 4, 0.03, 8, false);
+      const edgeMat = new THREE.MeshPhongMaterial({ color: 0x5c6984 });
+      const edge = new THREE.Mesh(edgeGeo, edgeMat);
+      this.scene.add(edge);
+      this.objects.push(edge);
+    });
+
+    positions.forEach((pos) => {
+      const geo = new THREE.SphereGeometry(0.32, 32, 32);
+      const mat = new THREE.MeshPhongMaterial({ color: this.colors.node, shininess: 80 });
+      const node = new THREE.Mesh(geo, mat);
+      node.position.copy(pos);
+      this.scene.add(node);
+      this.objects.push(node);
+      this.listNodes.push(node);
+    });
+  }
+
+  private setupHeapScene() {
+    this.setupTreeScene();
+  }
+
+  // 5. Hash Table Scene
+  private setupHashTableScene() {
+    this.clearScene();
+    this.maxSteps = 5;
+    this.camera.position.set(0, 2, 8);
+    if (this.controls) this.controls.target.set(0, 0.5, 0);
+
+    const numBuckets = 5;
+    for (let i = 0; i < numBuckets; i++) {
+      const y = i * 0.9 - 1.5;
+      const geo = new THREE.BoxGeometry(1.6, 0.5, 0.8);
+      const mat = new THREE.MeshPhongMaterial({ color: this.colors.node, shininess: 80 });
+      const bucket = new THREE.Mesh(geo, mat);
+      bucket.position.set(-2, y, 0);
+      this.scene.add(bucket);
+      this.objects.push(bucket);
+      this.listNodes.push(bucket);
+
+      const kvGeo = new THREE.SphereGeometry(0.25, 32, 32);
+      const kvMat = new THREE.MeshPhongMaterial({ color: this.colors.accentGreen });
+      const kvNode = new THREE.Mesh(kvGeo, kvMat);
+      kvNode.position.set(1.5, y, 0);
+      kvNode.visible = false;
+      this.scene.add(kvNode);
+      this.objects.push(kvNode);
+
+      const start = new THREE.Vector3(-1.0, y, 0);
+      const end = new THREE.Vector3(1.2, y, 0);
+      const path = new THREE.LineCurve3(start, end);
+      const edgeGeo = new THREE.TubeGeometry(path, 4, 0.02, 8, false);
+      const edgeMat = new THREE.MeshPhongMaterial({ color: 0x8e9bb4 });
+      const edge = new THREE.Mesh(edgeGeo, edgeMat);
+      edge.visible = false;
+      this.scene.add(edge);
+      this.objects.push(edge);
+    }
+  }
+
   // Traversal Hooks
   public step() {
     this.currentStep = (this.currentStep + 1) % this.maxSteps;
@@ -345,13 +536,77 @@ export class VisualizerInstance {
           b.mesh.visible = false;
         }
       });
-    } else if (this.activeMode === 'structures') {
+    } else if (this.activeMode === 'structures' || this.activeMode === 'Linked List') {
       const targetNode = this.listNodes[this.currentStep];
       if (this.listCursor) this.listCursor.position.copy(targetNode.position);
       this.listNodes.forEach((node, idx) => {
         const mat = node.material as THREE.MeshPhongMaterial;
         if (idx === this.currentStep) {
           mat.color.setHex(this.colors.nodeHighlight);
+        } else {
+          mat.color.setHex(this.colors.node);
+        }
+      });
+    } else if (this.activeMode === 'Array') {
+      const targetNode = this.listNodes[this.currentStep];
+      if (this.pointer) {
+        this.pointer.position.copy(targetNode.position);
+        this.pointer.position.y += 1.0;
+      }
+      this.listNodes.forEach((node, idx) => {
+        const mat = node.material as THREE.MeshPhongMaterial;
+        if (idx <= this.currentStep) {
+          mat.color.setHex(this.colors.nodeHighlight);
+        } else {
+          mat.color.setHex(this.colors.node);
+        }
+      });
+    } else if (this.activeMode === 'Stack/Queue' || this.activeMode === 'stack' || this.activeMode === 'queue') {
+      this.listNodes.forEach((node, idx) => {
+        const mat = node.material as THREE.MeshPhongMaterial;
+        if (idx <= this.currentStep) {
+          node.visible = true;
+          if (idx === this.currentStep) {
+            mat.color.setHex(this.colors.nodeHighlight);
+          } else {
+            mat.color.setHex(this.colors.node);
+          }
+        } else {
+          node.visible = false;
+        }
+      });
+    } else if (this.activeMode === 'Tree' || this.activeMode === 'Heap') {
+      this.listNodes.forEach((node, idx) => {
+        const mat = node.material as THREE.MeshPhongMaterial;
+        if (idx === this.currentStep) {
+          mat.color.setHex(this.colors.nodeHighlight);
+        } else if (idx < this.currentStep) {
+          mat.color.setHex(this.colors.accentGreen);
+        } else {
+          mat.color.setHex(this.colors.node);
+        }
+      });
+    } else if (this.activeMode === 'Graph') {
+      this.listNodes.forEach((node, idx) => {
+        const mat = node.material as THREE.MeshPhongMaterial;
+        if (idx === this.currentStep) {
+          mat.color.setHex(this.colors.nodeHighlight);
+        } else if (idx < this.currentStep) {
+          mat.color.setHex(this.colors.accentGreen);
+        } else {
+          mat.color.setHex(this.colors.node);
+        }
+      });
+    } else if (this.activeMode === 'Hash Table') {
+      this.listNodes.forEach((node, idx) => {
+        const mat = node.material as THREE.MeshPhongMaterial;
+        const kvNode = this.objects[5 + idx];
+        const pointer = this.objects[10 + idx];
+        
+        if (idx === this.currentStep) {
+          mat.color.setHex(this.colors.nodeHighlight);
+          if (kvNode) kvNode.visible = true;
+          if (pointer) pointer.visible = true;
         } else {
           mat.color.setHex(this.colors.node);
         }
@@ -364,9 +619,27 @@ export class VisualizerInstance {
       return `i = ${this.currentStep}, sum = ${((this.currentStep * (this.currentStep + 1)) / 2)}`;
     } else if (this.activeMode === 'recursion') {
       return `factorial(${5 - this.currentStep}) - Frame depth: ${this.currentStep}`;
+    } else if (this.activeMode === 'Array') {
+      return `arr[${this.currentStep}] = ${this.currentStep * 5 + 10} - Memory offset: ${this.currentStep * 4} bytes`;
+    } else if (this.activeMode === 'Linked List') {
+      const memoryAddresses = ["0x7FFE", "0x8B1C", "0x91F0", "0xA3B4", "0xBF22"];
+      return `curr = ${memoryAddresses[this.currentStep % memoryAddresses.length]}, val = ${this.currentStep * 10}`;
+    } else if (this.activeMode === 'stack') {
+      return `Stack size = ${this.currentStep + 1}, Top value = ${this.currentStep * 10 + 10}`;
+    } else if (this.activeMode === 'queue') {
+      return `Queue size = ${this.currentStep + 1}, Front value = 10, Rear value = ${this.currentStep * 10 + 10}`;
+    } else if (this.activeMode === 'Tree') {
+      const nodeNames = ["Root", "Left", "Right", "Left-Left", "Left-Right", "Right-Left", "Right-Right"];
+      return `dfs_traverse() -> visited: ${nodeNames[this.currentStep % nodeNames.length]}`;
+    } else if (this.activeMode === 'Graph') {
+      return `bfs_traverse() -> active_node = Node_${this.currentStep}, visited = {0..${this.currentStep}}`;
+    } else if (this.activeMode === 'Heap') {
+      return `min_heapify() -> active_index = ${this.currentStep}, min_val = ${this.currentStep * 2}`;
+    } else if (this.activeMode === 'Hash Table') {
+      return `hash_map("key_${this.currentStep}") -> index = ${this.currentStep % 5}, value = ${this.currentStep * 100}`;
     } else {
       const memoryAddresses = ["0x7FFE", "0x8B1C", "0x91F0", "0xA3B4", "0xBF22"];
-      return `curr_node = ${memoryAddresses[this.currentStep]}, val = ${this.currentStep * 10}`;
+      return `curr_node = ${memoryAddresses[this.currentStep % memoryAddresses.length]}, val = ${this.currentStep * 10}`;
     }
   }
 

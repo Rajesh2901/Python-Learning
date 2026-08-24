@@ -1,0 +1,202 @@
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ApiService, InterviewQuestion, UserPerformanceLog } from '../services/api.service';
+import { ThreeService, VisualizerInstance } from '../services/three.service';
+
+@Component({
+  selector: 'app-interview-prep',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './interview-prep.html',
+  styleUrls: ['./interview-prep.css']
+})
+export class InterviewPrepComponent implements OnInit, OnDestroy {
+  @ViewChild('rendererContainer') rendererContainer!: ElementRef;
+
+  // Filters
+  searchCompany = '';
+  filterDifficulty = '';
+  filterCategory = '';
+
+  // Data
+  questions: InterviewQuestion[] = [];
+  recommendations: InterviewQuestion[] = [];
+  selectedQuestion: InterviewQuestion | null = null;
+
+  // Editor & Output
+  editorCode = '';
+  stdout = '';
+  stderr = '';
+  error = '';
+  isRunning = false;
+  attemptResult: UserPerformanceLog | null = null;
+
+  // Visualizer Instance
+  private visualizer?: VisualizerInstance;
+  isPlaying = false;
+  speed = 50;
+  hudText = '';
+
+  constructor(
+    private apiService: ApiService,
+    private threeService: ThreeService
+  ) {}
+
+  ngOnInit() {
+    this.loadQuestions();
+    this.loadRecommendations();
+  }
+
+  ngOnDestroy() {
+    this.destroyVisualizer();
+  }
+
+  loadQuestions() {
+    this.apiService.getQuestions(this.filterCategory, this.filterDifficulty, this.searchCompany)
+      .subscribe(res => {
+        this.questions = res;
+      });
+  }
+
+  loadRecommendations() {
+    this.apiService.getRecommendations().subscribe(res => {
+      this.recommendations = res;
+    });
+  }
+
+  onFilterChange() {
+    this.loadQuestions();
+  }
+
+  selectQuestion(q: InterviewQuestion) {
+    this.destroyVisualizer();
+    this.selectedQuestion = q;
+    this.editorCode = q.starter_code;
+    this.stdout = '';
+    this.stderr = '';
+    this.error = '';
+    this.attemptResult = null;
+    this.isPlaying = false;
+    this.hudText = '';
+
+    // Initialize WebGL Visualizer on selected question layout render
+    setTimeout(() => {
+      this.initVisualizer();
+    }, 50);
+  }
+
+  getCompanyList(tags: string): string[] {
+    return tags ? tags.split(',') : [];
+  }
+
+  loadSolution() {
+    if (this.selectedQuestion) {
+      this.editorCode = this.selectedQuestion.solution_code;
+    }
+  }
+
+  runCode() {
+    if (!this.selectedQuestion || this.isRunning) return;
+    this.isRunning = true;
+    this.stdout = '';
+    this.stderr = '';
+    this.error = '';
+
+    const startTime = Date.now();
+
+    this.apiService.runCode(this.editorCode).subscribe({
+      next: (res) => {
+        this.stdout = res.stdout;
+        this.stderr = res.stderr;
+        
+        const executionTime = Date.now() - startTime;
+        let status = 'Success';
+        
+        if (res.error) {
+          this.error = res.error;
+          status = 'Fail';
+        }
+
+        // Log performance metrics to backend
+        if (this.selectedQuestion) {
+          this.apiService.logPerformance(this.selectedQuestion.id, status, executionTime)
+            .subscribe(logRes => {
+              this.attemptResult = logRes;
+              this.loadRecommendations(); // Refresh recommendation path
+            });
+        }
+        
+        // Start 3D visualizer animation automatically on success!
+        if (status === 'Success' && this.visualizer) {
+          this.visualizer.reset();
+          this.visualizer.isPlaying = true;
+          this.isPlaying = true;
+        }
+
+        this.isRunning = false;
+      },
+      error: (err) => {
+        this.error = 'Failed to execute code on backend API.';
+        this.isRunning = false;
+      }
+    });
+  }
+
+  // Visualizer Interactions
+  private initVisualizer() {
+    if (!this.rendererContainer || !this.selectedQuestion) return;
+    const container = this.rendererContainer.nativeElement;
+    
+    // Create new Visualizer instances linked to the selected question's category
+    this.visualizer = this.threeService.createVisualizer(container, false);
+    
+    // Set matching visualizer mode: e.g. Array, Graph, Linked List
+    this.visualizer.setVisualization(this.selectedQuestion.category);
+    this.visualizer.setSpeed(this.speed);
+    
+    // Intercept step notifications to update local HUD metrics
+    const originalStep = this.visualizer.step.bind(this.visualizer);
+    this.visualizer.step = () => {
+      const res = originalStep();
+      this.hudText = res.vars;
+      return res;
+    };
+  }
+
+  private destroyVisualizer() {
+    if (this.visualizer) {
+      this.visualizer.destroy();
+      this.visualizer = undefined;
+    }
+  }
+
+  togglePlay() {
+    if (this.visualizer) {
+      this.isPlaying = this.visualizer.togglePlay();
+    }
+  }
+
+  stepVisualizer() {
+    if (this.visualizer) {
+      this.isPlaying = false;
+      this.visualizer.isPlaying = false;
+      const res = this.visualizer.step();
+      this.hudText = res.vars;
+    }
+  }
+
+  resetVisualizer() {
+    if (this.visualizer) {
+      this.isPlaying = false;
+      const res = this.visualizer.reset();
+      this.hudText = res.vars;
+    }
+  }
+
+  onSpeedChange() {
+    if (this.visualizer) {
+      this.visualizer.setSpeed(this.speed);
+    }
+  }
+}

@@ -1,0 +1,150 @@
+<div class="prep-container">
+  <div class="prep-header">
+    <div class="title-section">
+      <h1>3D Interview Preparation Dashboard</h1>
+      <p class="subtitle">Master data structures and algorithm coding interviews visually.</p>
+    </div>
+    
+    <!-- Smart Search and Filters -->
+    <div class="search-bar-section">
+      <input type="text" [(ngModel)]="searchCompany" (input)="onFilterChange()" placeholder="Search by company (e.g. Meta, Google, Amazon)..." class="search-input" />
+      <select [(ngModel)]="filterDifficulty" (change)="onFilterChange()" class="difficulty-select">
+        <option value="">All Difficulties</option>
+        <option value="Easy">Easy</option>
+        <option value="Medium">Medium</option>
+        <option value="Hard">Hard</option>
+      </select>
+      <select [(ngModel)]="filterCategory" (change)="onFilterChange()" class="category-select">
+        <option value="">All Categories</option>
+        <option value="Array">Array</option>
+        <option value="Linked List">Linked List</option>
+        <option value="Stack/Queue">Stack/Queue</option>
+        <option value="Tree">Tree</option>
+        <option value="Graph">Graph</option>
+        <option value="Heap">Heap</option>
+        <option value="Hash Table">Hash Table</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="prep-content">
+    <!-- Questions List (Left Pane) -->
+    <div class="questions-list-panel">
+      <h2>Curated Practice Sets</h2>
+      <div class="recommendations-box" *ngIf="recommendations.length > 0">
+        <h3>💡 Suggested Next for You:</h3>
+        <ul>
+          <li *ngFor="let rec of recommendations" (click)="selectQuestion(rec)" [class.active]="selectedQuestion?.id === rec.id">
+            <span class="rec-title">{{ rec.title }}</span>
+            <span class="badge" [ngClass]="rec.difficulty.toLowerCase()">{{ rec.difficulty }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="questions-scroll">
+        <div *ngFor="let q of questions" class="question-card" [class.selected]="selectedQuestion?.id === q.id" (click)="selectQuestion(q)">
+          <div class="q-header">
+            <h3>{{ q.title }}</h3>
+            <span class="badge" [ngClass]="q.difficulty.toLowerCase()">{{ q.difficulty }}</span>
+          </div>
+          <div class="q-meta">
+            <span class="meta-tag">{{ q.category }}</span>
+            <span class="company-tag" *ngFor="let comp of getCompanyList(q.company_tags)">{{ comp }}</span>
+          </div>
+          <div class="frequency-indicator">
+            <span class="freq-label">Frequency:</span>
+            <div class="bar-container">
+              <div class="bar-fill" [style.width.%]="q.frequency_index * 10"></div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="questions.length === 0" class="no-results">
+          No questions match your current filters.
+        </div>
+      </div>
+    </div>
+
+    <!-- Workspace IDE & 3D Canvas (Right Pane) -->
+    <div class="workspace-panel" *ngIf="selectedQuestion">
+      <div class="workspace-header">
+        <h2>Coding Playground: {{ selectedQuestion.title }}</h2>
+        <div class="playback-controls">
+          <button (click)="togglePlay()" class="btn-icon" [title]="isPlaying ? 'Pause' : 'Play'">
+            <span class="icon">{{ isPlaying ? '⏸' : '▶' }}</span>
+          </button>
+          <button (click)="stepVisualizer()" class="btn-icon" title="Step Frame">
+            <span class="icon">⏭</span>
+          </button>
+          <button (click)="resetVisualizer()" class="btn-icon" title="Reset">
+            <span class="icon">🔄</span>
+          </button>
+          <div class="speed-slider-container">
+            <span class="slider-label">Speed:</span>
+            <input type="range" min="1" max="100" [(ngModel)]="speed" (input)="onSpeedChange()" class="speed-slider" />
+          </div>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Problem Statement & Visualizer -->
+        <div class="left-workspace-column">
+          <div class="statement-card">
+            <h3>Problem Statement</h3>
+            <p class="statement-text">{{ selectedQuestion.problem_statement }}</p>
+          </div>
+          
+          <div class="visualizer-card">
+            <div class="vis-header">
+              <h3>3D Algorithm Sandbox ({{ selectedQuestion.category }})</h3>
+              <span class="hud-vars" *ngIf="hudText">{{ hudText }}</span>
+            </div>
+            <div #rendererContainer class="three-canvas-container"></div>
+          </div>
+        </div>
+
+        <!-- Code Editor & Console -->
+        <div class="right-workspace-column">
+          <div class="editor-card">
+            <div class="editor-header">
+              <h3>Python Code Editor</h3>
+              <div class="action-buttons">
+                <button (click)="loadSolution()" class="btn-secondary">Load Solution</button>
+                <button (click)="runCode()" class="btn-primary" [disabled]="isRunning">
+                  {{ isRunning ? 'Running...' : 'Run Code' }}
+                </button>
+              </div>
+            </div>
+            <textarea [(ngModel)]="editorCode" class="monospace-editor" rows="16"></textarea>
+          </div>
+
+          <div class="console-card">
+            <h3>Console Output</h3>
+            <div class="console-log">
+              <pre *ngIf="stdout" class="stdout">{{ stdout }}</pre>
+              <pre *ngIf="stderr" class="stderr">{{ stderr }}</pre>
+              <pre *ngIf="error" class="error">{{ error }}</pre>
+              <div *ngIf="!stdout && !stderr && !error" class="console-placeholder">
+                Run your code to display console outputs here.
+              </div>
+            </div>
+            <div class="attempt-metrics" *ngIf="attemptResult">
+              <span class="metric-badge" [ngClass]="attemptResult.status.toLowerCase()">
+                Attempt: {{ attemptResult.status }}
+              </span>
+              <span class="metric-time">Time: {{ attemptResult.execution_time_ms }} ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection Placeholder -->
+    <div class="workspace-placeholder" *ngIf="!selectedQuestion">
+      <div class="placeholder-content">
+        <span class="placeholder-icon">💡</span>
+        <h2>Select a coding question to begin practice</h2>
+        <p>Pick a question from the left sidebar to load the dynamic 3D sandbox and interactive Python coding workspace.</p>
+      </div>
+    </div>
+  </div>
+</div>

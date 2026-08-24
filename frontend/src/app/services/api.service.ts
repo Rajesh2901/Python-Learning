@@ -27,6 +27,26 @@ export interface CustomTask {
   created_at?: string;
 }
 
+export interface InterviewQuestion {
+  id: number;
+  title: string;
+  difficulty: string;
+  category: string;
+  frequency_index: number;
+  company_tags: string;
+  problem_statement: string;
+  starter_code: string;
+  solution_code: string;
+}
+
+export interface UserPerformanceLog {
+  id?: number;
+  question_id: number;
+  status: string;
+  execution_time_ms: number;
+  created_at?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -69,5 +89,36 @@ export class ApiService {
 
   deleteTask(taskId: number): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/tasks/${taskId}`);
+  }
+
+  // Interview Prep endpoints
+  getQuestions(category?: string, difficulty?: string, company?: string): Observable<InterviewQuestion[]> {
+    let params: string[] = [];
+    if (category) params.push(`category=${encodeURIComponent(category)}`);
+    if (difficulty) params.push(`difficulty=${encodeURIComponent(difficulty)}`);
+    if (company) params.push(`company=${encodeURIComponent(company)}`);
+    
+    const queryString = params.length > 0 ? `?${params.join('&')}` : '';
+    return this.http.get<InterviewQuestion[]>(`${this.baseUrl}/questions${queryString}`);
+  }
+
+  getQuestionById(id: number): Observable<InterviewQuestion> {
+    return this.http.get<InterviewQuestion>(`${this.baseUrl}/questions/${id}`);
+  }
+
+  logPerformance(questionId: number, status: string, executionTimeMs: number): Observable<UserPerformanceLog> {
+    return this.http.post<UserPerformanceLog>(`${this.baseUrl}/performance`, {
+      question_id: questionId,
+      status: status,
+      execution_time_ms: executionTimeMs
+    });
+  }
+
+  getPerformanceHistory(): Observable<UserPerformanceLog[]> {
+    return this.http.get<UserPerformanceLog[]>(`${this.baseUrl}/performance/history`);
+  }
+
+  getRecommendations(): Observable<InterviewQuestion[]> {
+    return this.http.get<InterviewQuestion[]>(`${this.baseUrl}/recommendations`);
   }
 }
