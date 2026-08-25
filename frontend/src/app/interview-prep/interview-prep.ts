@@ -54,14 +54,24 @@ export class InterviewPrepComponent implements OnInit, OnDestroy {
 
   loadQuestions() {
     this.apiService.getQuestions(this.filterCategory, this.filterDifficulty, this.searchCompany)
-      .subscribe(res => {
-        this.questions = res;
+      .subscribe({
+        next: (res) => {
+          this.questions = res || [];
+        },
+        error: () => {
+          this.questions = [];
+        }
       });
   }
 
   loadRecommendations() {
-    this.apiService.getRecommendations().subscribe(res => {
-      this.recommendations = res;
+    this.apiService.getRecommendations().subscribe({
+      next: (res) => {
+        this.recommendations = res || [];
+      },
+      error: () => {
+        this.recommendations = [];
+      }
     });
   }
 
@@ -121,9 +131,14 @@ export class InterviewPrepComponent implements OnInit, OnDestroy {
         // Log performance metrics to backend
         if (this.selectedQuestion) {
           this.apiService.logPerformance(this.selectedQuestion.id, status, executionTime)
-            .subscribe(logRes => {
-              this.attemptResult = logRes;
-              this.loadRecommendations(); // Refresh recommendation path
+            .subscribe({
+              next: (logRes) => {
+                this.attemptResult = logRes;
+                this.loadRecommendations(); // Refresh recommendation path
+              },
+              error: () => {
+                console.warn('Failed to log attempt metrics.');
+              }
             });
         }
         

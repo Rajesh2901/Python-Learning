@@ -37,16 +37,26 @@ export class DocsViewComponent implements OnInit {
   }
 
   loadTopics() {
-    this.apiService.getDocsTopics().subscribe(res => {
-      this.topics = res;
+    this.apiService.getDocsTopics().subscribe({
+      next: (res) => {
+        this.topics = res || [];
+      },
+      error: () => {
+        this.topics = [];
+      }
     });
   }
 
   loadCompletedMilestones() {
-    this.apiService.getProgress().subscribe(res => {
-      this.unlockedMilestones = res
-        .filter(p => p.completed)
-        .map(p => p.topic_id);
+    this.apiService.getProgress().subscribe({
+      next: (res) => {
+        this.unlockedMilestones = (res || [])
+          .filter(p => p.completed)
+          .map(p => p.topic_id);
+      },
+      error: () => {
+        this.unlockedMilestones = [];
+      }
     });
   }
 
@@ -65,12 +75,17 @@ export class DocsViewComponent implements OnInit {
   }
 
   loadChallenges(category: string) {
-    this.apiService.getChallenges(category).subscribe(res => {
-      this.challenges = res;
-      if (res.length > 0) {
-        this.activeChallengeIndex = 0;
-        this.activeChallenge = res[0];
-        this.editorCode = res[0].starter_code;
+    this.apiService.getChallenges(category).subscribe({
+      next: (res) => {
+        this.challenges = res || [];
+        if (this.challenges.length > 0) {
+          this.activeChallengeIndex = 0;
+          this.activeChallenge = this.challenges[0];
+          this.editorCode = this.challenges[0].starter_code;
+        }
+      },
+      error: () => {
+        this.challenges = [];
       }
     });
   }
@@ -128,8 +143,13 @@ export class DocsViewComponent implements OnInit {
           // If code compiles and has no runtime errors, mark as solved
           this.isSolved = true;
           if (this.selectedTopic) {
-            this.apiService.saveProgress(this.selectedTopic.topic_name, true).subscribe(() => {
-              this.loadCompletedMilestones(); // Update achievement icons
+            this.apiService.saveProgress(this.selectedTopic.topic_name, true).subscribe({
+              next: () => {
+                this.loadCompletedMilestones(); // Update achievement icons
+              },
+              error: () => {
+                console.warn('Failed to save document milestone.');
+              }
             });
           }
         }

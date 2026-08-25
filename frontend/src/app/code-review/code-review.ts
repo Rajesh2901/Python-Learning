@@ -25,16 +25,26 @@ export class CodeReviewComponent implements OnInit {
   }
 
   loadSimulations() {
-    this.apiService.getCodeReviews().subscribe(res => {
-      this.simulations = res;
+    this.apiService.getCodeReviews().subscribe({
+      next: (res) => {
+        this.simulations = res || [];
+      },
+      error: () => {
+        this.simulations = [];
+      }
     });
   }
 
   loadCompletedReviews() {
-    this.apiService.getProgress().subscribe(res => {
-      this.completedReviews = res
-        .filter(p => p.completed)
-        .map(p => p.topic_id);
+    this.apiService.getProgress().subscribe({
+      next: (res) => {
+        this.completedReviews = (res || [])
+          .filter(p => p.completed)
+          .map(p => p.topic_id);
+      },
+      error: () => {
+        this.completedReviews = [];
+      }
     });
   }
 
@@ -51,8 +61,13 @@ export class CodeReviewComponent implements OnInit {
   approveCorrection() {
     if (!this.selectedSim) return;
     const progressKey = 'review_' + this.selectedSim.id;
-    this.apiService.saveProgress(progressKey, true).subscribe(() => {
-      this.loadCompletedReviews(); // Update the Approved badge UI
+    this.apiService.saveProgress(progressKey, true).subscribe({
+      next: () => {
+        this.loadCompletedReviews(); // Update the Approved badge UI
+      },
+      error: () => {
+        console.warn('Failed to save code review progress.');
+      }
     });
   }
 
