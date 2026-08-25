@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 24px;
-  padding: 24px;
+  padding: 16px;
   max-width: 1400px;
   margin: 0 auto;
   min-height: calc(100vh - 80px);
@@ -19,7 +19,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   padding: 16px;
-  height: calc(100vh - 300px);
+  height: calc(100vh - 230px);
 }
 
 .topics-sidebar h2 {
@@ -136,12 +136,11 @@
   font-weight: 600;
 }
 
-/* Workspaces */
 .details-workspace {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: calc(100vh - 300px);
+  height: calc(100vh - 230px);
 }
 
 .docs-header {
@@ -152,7 +151,7 @@
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
-  padding: 16px;
+  padding: 10px 16px;
 }
 
 .header-titles h2 {

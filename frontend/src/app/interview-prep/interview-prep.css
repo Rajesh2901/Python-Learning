@@ -1,5 +1,5 @@
 .prep-container {
-  padding: 24px;
+  padding: 16px;
   max-width: 1400px;
   margin: 0 auto;
   min-height: calc(100vh - 80px);
@@ -7,7 +7,7 @@
 }
 
 .prep-header {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,7 +16,7 @@
   background: rgba(15, 23, 42, 0.4);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 20px;
+  padding: 10px 16px;
   border-radius: 16px;
 }
 
@@ -71,7 +71,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   padding: 12px;
   border-radius: 16px;
-  height: calc(100vh - 300px);
+  height: calc(100vh - 230px);
   display: flex;
   flex-direction: column;
 }
@@ -308,7 +308,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  height: calc(100vh - 300px);
+  height: calc(100vh - 230px);
 }
 
 .left-workspace-column, .right-workspace-column {
