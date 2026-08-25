@@ -71,7 +71,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   padding: 12px;
   border-radius: 16px;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 300px);
   display: flex;
   flex-direction: column;
 }
@@ -344,7 +344,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 300px);
 }
 
 .left-workspace-column, .right-workspace-column {
