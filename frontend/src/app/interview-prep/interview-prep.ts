@@ -66,6 +66,9 @@ export class InterviewPrepComponent implements OnInit, OnDestroy {
             const bRec = this.isRecommended(b.id) ? 1 : 0;
             return bRec - aRec;
           });
+          if (this.questions.length > 0 && !this.selectedQuestion) {
+            this.selectQuestion(this.questions[0]);
+          }
         },
         error: () => {
           this.questions = [];

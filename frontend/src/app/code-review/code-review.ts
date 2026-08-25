@@ -28,6 +28,9 @@ export class CodeReviewComponent implements OnInit {
     this.apiService.getCodeReviews().subscribe({
       next: (res) => {
         this.simulations = res || [];
+        if (this.simulations.length > 0 && !this.selectedSim) {
+          this.selectSimulation(this.simulations[0]);
+        }
       },
       error: () => {
         this.simulations = [];

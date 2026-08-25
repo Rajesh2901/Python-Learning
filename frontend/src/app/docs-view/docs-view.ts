@@ -40,6 +40,9 @@ export class DocsViewComponent implements OnInit {
     this.apiService.getDocsTopics().subscribe({
       next: (res) => {
         this.topics = res || [];
+        if (this.topics.length > 0 && !this.selectedTopic) {
+          this.selectTopic(this.topics[0]);
+        }
       },
       error: () => {
         this.topics = [];
