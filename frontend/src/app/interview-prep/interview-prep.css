@@ -118,48 +118,7 @@
   width: 100%;
 }
 
-.recommendations-box {
-  background: rgba(0, 243, 255, 0.05);
-  border: 1px dashed rgba(0, 243, 255, 0.2);
-  padding: 8px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
 
-.recommendations-box h3 {
-  font-size: 12px;
-  font-weight: 600;
-  color: #00f3ff;
-  margin-bottom: 4px;
-}
-
-.recommendations-box ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.recommendations-box li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: background 0.2s;
-}
-
-.recommendations-box li:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.rec-title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 180px;
-}
 
 .questions-scroll {
   overflow-y: auto;
@@ -187,6 +146,11 @@
 .question-card.selected {
   border-color: #00f3ff;
   background: rgba(0, 243, 255, 0.05);
+}
+
+.question-card.recommended {
+  border-left: 3px solid #00f3ff;
+  background: rgba(0, 243, 255, 0.02);
 }
 
 .q-header {

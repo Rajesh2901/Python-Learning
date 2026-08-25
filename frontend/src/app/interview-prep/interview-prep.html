@@ -34,20 +34,16 @@
         </div>
       </div>
 
-      <div class="recommendations-box" *ngIf="recommendations.length > 0">
-        <h3>💡 Suggested Next for You:</h3>
-        <ul>
-          <li *ngFor="let rec of recommendations" (click)="selectQuestion(rec)" [class.active]="selectedQuestion?.id === rec.id">
-            <span class="rec-title">{{ rec.title }}</span>
-            <span class="badge" [ngClass]="rec.difficulty.toLowerCase()">{{ rec.difficulty }}</span>
-          </li>
-        </ul>
-      </div>
-
       <div class="questions-scroll">
-        <div *ngFor="let q of questions" class="question-card" [class.selected]="selectedQuestion?.id === q.id" (click)="selectQuestion(q)">
+        <div *ngFor="let q of questions" class="question-card" 
+             [class.selected]="selectedQuestion?.id === q.id" 
+             [class.recommended]="isRecommended(q.id)"
+             (click)="selectQuestion(q)">
           <div class="q-header">
-            <h3>{{ q.title }}</h3>
+            <h3>
+              <span class="recommend-star" *ngIf="isRecommended(q.id)">💡 </span>
+              {{ q.title }}
+            </h3>
             <span class="badge" [ngClass]="q.difficulty.toLowerCase()">{{ q.difficulty }}</span>
           </div>
           <div class="q-meta">

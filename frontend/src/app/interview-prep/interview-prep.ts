@@ -52,11 +52,20 @@ export class InterviewPrepComponent implements OnInit, OnDestroy {
     this.destroyVisualizer();
   }
 
+  isRecommended(qId: number): boolean {
+    return this.recommendations.some(r => r.id === qId);
+  }
+
   loadQuestions() {
     this.apiService.getQuestions(this.filterCategory, this.filterDifficulty, this.searchCompany)
       .subscribe({
         next: (res) => {
-          this.questions = res || [];
+          const list = res || [];
+          this.questions = list.sort((a, b) => {
+            const aRec = this.isRecommended(a.id) ? 1 : 0;
+            const bRec = this.isRecommended(b.id) ? 1 : 0;
+            return bRec - aRec;
+          });
         },
         error: () => {
           this.questions = [];
