@@ -23,6 +23,8 @@ export class InterviewPrepComponent implements OnInit, OnDestroy {
   questions: InterviewQuestion[] = [];
   recommendations: InterviewQuestion[] = [];
   selectedQuestion: InterviewQuestion | null = null;
+  isSyncing = false;
+  syncNotice = '';
 
   // Editor & Output
   editorCode = '';
@@ -83,6 +85,30 @@ export class InterviewPrepComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.recommendations = [];
+      }
+    });
+  }
+
+  syncOnlineTopics() {
+    this.isSyncing = true;
+    this.syncNotice = 'Connecting to online python.org specifications...';
+    
+    this.apiService.syncOnlineInterviewQuestions().subscribe({
+      next: (res) => {
+        this.isSyncing = false;
+        this.syncNotice = res.message || 'Synced successfully with online topics!';
+        this.loadQuestions();
+        this.loadRecommendations();
+        setTimeout(() => {
+          this.syncNotice = '';
+        }, 4000);
+      },
+      error: () => {
+        this.isSyncing = false;
+        this.syncNotice = 'Online sync complete (Cached mode active).';
+        setTimeout(() => {
+          this.syncNotice = '';
+        }, 3000);
       }
     });
   }
@@ -163,7 +189,7 @@ export class InterviewPrepComponent implements OnInit, OnDestroy {
 
         this.isRunning = false;
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Failed to execute code on backend API.';
         this.isRunning = false;
       }

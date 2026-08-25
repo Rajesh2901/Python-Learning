@@ -48,6 +48,7 @@ class InterviewQuestionBase(BaseModel):
     problem_statement: str
     starter_code: str
     solution_code: str
+    reference_url: Optional[str] = None
 
 class InterviewQuestionCreate(InterviewQuestionBase):
     pass

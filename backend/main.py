@@ -6,6 +6,7 @@ import io
 import traceback
 import urllib.request
 import re
+from datetime import datetime
 from typing import List, Optional
 
 import models
@@ -17,10 +18,10 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Python Mastery Backend API")
 
-# Configure CORS for Angular Frontend
+# Configure CORS for Angular Frontend and Cloudflare
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,55 +62,42 @@ def scrape_python_org_doc(url: str) -> str:
         with urllib.request.urlopen(req, timeout=5) as response:
             html = response.read().decode('utf-8')
             
-        # Extract text content between body / class="body" tags
         body_match = re.search(r'<section[^>]*class="body"[^>]*>(.*?)</section>', html, re.DOTALL)
         if not body_match:
             body_match = re.search(r'<div[^>]*class="body"[^>]*>(.*?)</div[^>]*>', html, re.DOTALL)
             
         if body_match:
             content = body_match.group(1)
-            # Remove scripts and style tags
             content = re.sub(r'<script[^>]*>.*?</script>', '', content, flags=re.DOTALL)
             content = re.sub(r'<style[^>]*>.*?</style>', '', content, flags=re.DOTALL)
-            # Convert basic tags to simple markdown-ish format
             content = re.sub(r'<h1[^>]*>(.*?)</h1>', r'\n# \1\n', content, flags=re.DOTALL)
             content = re.sub(r'<h2[^>]*>(.*?)</h2>', r'\n## \1\n', content, flags=re.DOTALL)
             content = re.sub(r'<h3[^>]*>(.*?)</h3>', r'\n### \1\n', content, flags=re.DOTALL)
             content = re.sub(r'<p[^>]*>(.*?)</p>', r'\n\1\n', content, flags=re.DOTALL)
             content = re.sub(r'<pre[^>]*>(.*?)</pre>', r'\n```python\n\1\n```\n', content, flags=re.DOTALL)
             content = re.sub(r'<code[^>]*>(.*?)</code>', r'`\1`', content, flags=re.DOTALL)
-            # Strip remaining tags
             content = re.sub(r'<[^>]*>', '', content)
-            # Unescape HTML entities
             content = content.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&').replace('&quot;', '"')
             return content.strip()
     except Exception as e:
         print(f"Scraper error: {e}")
     return ""
 
-# Startup database seeding
-@app.on_event("startup")
-def seed_database():
-    db = next(get_db())
-    
-    # 1. Seed Interview questions
-    if db.query(models.InterviewQuestion).count() == 0:
-        questions = [
-            models.InterviewQuestion(
-                title="Two Sum",
-                difficulty="Easy",
-                category="Array",
-                frequency_index=9.5,
-                company_tags="Google,Meta,Amazon,Apple",
-                problem_statement="Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.",
-                starter_code="""def two_sum(nums, target):
+CURATED_INTERVIEW_QUESTIONS = [
+    {
+        "title": "Two Sum",
+        "difficulty": "Easy",
+        "category": "Array",
+        "frequency_index": 9.8,
+        "company_tags": "Google,Meta,Amazon,Apple",
+        "problem_statement": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.",
+        "starter_code": """def two_sum(nums, target):
     # Write your code here
     pass
 
-# Testing the code
 print(two_sum([2, 7, 11, 15], 9))  # Expected: [0, 1]
 """,
-                solution_code="""def two_sum(nums, target):
+        "solution_code": """def two_sum(nums, target):
     seen = {}
     for i, num in enumerate(nums):
         diff = target - num
@@ -119,130 +107,524 @@ print(two_sum([2, 7, 11, 15], 9))  # Expected: [0, 1]
     return []
 
 print(two_sum([2, 7, 11, 15], 9))
-"""
-            ),
-            models.InterviewQuestion(
-                title="Merge Two Sorted Lists",
-                difficulty="Easy",
-                category="Linked List",
-                frequency_index=8.2,
-                company_tags="Amazon,Microsoft,Apple",
-                problem_statement="Merge two sorted linked lists and return it as a sorted list. The list should be made by splicing together the nodes of the first two lists.",
-                starter_code="""class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
-def merge_two_lists(l1, l2):
-    # Write your code here
-    pass
 """,
-                solution_code="""class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
+        "reference_url": "https://docs.python.org/3/tutorial/datastructures.html#more-on-lists"
+    },
+    {
+        "title": "3Sum",
+        "difficulty": "Medium",
+        "category": "Array",
+        "frequency_index": 9.3,
+        "company_tags": "Meta,Amazon,Microsoft,Apple",
+        "problem_statement": "Given an integer array nums, return all the triplets `[nums[i], nums[j], nums[k]]` such that `i != j`, `i != k`, and `j != k`, and `nums[i] + nums[j] + nums[k] == 0`.\n\nNotice that the solution set must not contain duplicate triplets.",
+        "starter_code": """def three_sum(nums):
+    # Write your two-pointer code here
+    pass
 
-def merge_two_lists(l1, l2):
-    dummy = ListNode()
-    curr = dummy
-    while l1 and l2:
-        if l1.val < l2.val:
-            curr.next = l1
-            l1 = l1.next
+print(three_sum([-1,0,1,2,-1,-4]))  # Expected: [[-1, -1, 2], [-1, 0, 1]]
+""",
+        "solution_code": """def three_sum(nums):
+    nums.sort()
+    res = []
+    for i in range(len(nums) - 2):
+        if i > 0 and nums[i] == nums[i-1]:
+            continue
+        l, r = i + 1, len(nums) - 1
+        while l < r:
+            s = nums[i] + nums[l] + nums[r]
+            if s < 0:
+                l += 1
+            elif s > 0:
+                r -= 1
+            else:
+                res.append([nums[i], nums[l], nums[r]])
+                while l < r and nums[l] == nums[l+1]: l += 1
+                while l < r and nums[r] == nums[r-1]: r -= 1
+                l += 1; r -= 1
+    return res
+
+print(three_sum([-1,0,1,2,-1,-4]))
+""",
+        "reference_url": "https://docs.python.org/3/tutorial/datastructures.html"
+    },
+    {
+        "title": "Valid Parentheses",
+        "difficulty": "Easy",
+        "category": "Stack/Queue",
+        "frequency_index": 9.4,
+        "company_tags": "Meta,Amazon,Bloomberg,Microsoft",
+        "problem_statement": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.\n\nOpen brackets must be closed by the same type of brackets in correct order.",
+        "starter_code": """def is_valid(s):
+    # Write your stack-based code here
+    pass
+
+print(is_valid("()[]{}"))  # Expected: True
+print(is_valid("(]"))      # Expected: False
+""",
+        "solution_code": """def is_valid(s):
+    stack = []
+    mapping = {')': '(', '}': '{', ']': '['}
+    for char in s:
+        if char in mapping:
+            top = stack.pop() if stack else '#'
+            if mapping[char] != top:
+                return False
         else:
-            curr.next = l2
-            l2 = l2.next
-        curr = curr.next
-    curr.next = l1 or l2
-    return dummy.next
-"""
-            ),
-            models.InterviewQuestion(
-                title="Binary Tree Level Order Traversal",
-                difficulty="Medium",
-                category="Tree",
-                frequency_index=8.8,
-                company_tags="Meta,Google,Amazon",
-                problem_statement="Given the root of a binary tree, return the level order traversal of its nodes' values (i.e., from left to right, level by level).",
-                starter_code="""class TreeNode:
-    def __init__(self, val=0, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
+            stack.append(char)
+    return not stack
 
-def level_order(root):
-    # Write your code here
+print(is_valid("()[]{}"))
+""",
+        "reference_url": "https://docs.python.org/3/library/collections.html#collections.deque"
+    },
+    {
+        "title": "Daily Temperatures",
+        "difficulty": "Medium",
+        "category": "Stack/Queue",
+        "frequency_index": 8.9,
+        "company_tags": "Meta,Amazon,Google",
+        "problem_statement": "Given an array of integers temperatures represents the daily temperatures, return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature. If there is no future day for which this is possible, keep answer[i] == 0.",
+        "starter_code": """def daily_temperatures(temperatures):
+    # Monotonic stack solution
+    pass
+
+print(daily_temperatures([73,74,75,71,69,72,76,73]))  # Expected: [1,1,4,2,1,1,0,0]
+""",
+        "solution_code": """def daily_temperatures(temperatures):
+    res = [0] * len(temperatures)
+    stack = [] # (index, temp)
+    for i, t in enumerate(temperatures):
+        while stack and t > stack[-1][1]:
+            prev_idx, _ = stack.pop()
+            res[prev_idx] = i - prev_idx
+        stack.append((i, t))
+    return res
+
+print(daily_temperatures([73,74,75,71,69,72,76,73]))
+""",
+        "reference_url": "https://docs.python.org/3/library/collections.html#collections.deque"
+    },
+    {
+        "title": "Reverse Linked List",
+        "difficulty": "Easy",
+        "category": "Linked List",
+        "frequency_index": 8.9,
+        "company_tags": "Amazon,Microsoft,Apple,Uber",
+        "problem_statement": "Given the head of a singly linked list, reverse the list, and return the reversed list.",
+        "starter_code": """class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def reverse_list(head):
+    # Write pointer reversal code
     pass
 """,
-                solution_code="""class TreeNode:
+        "solution_code": """class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def reverse_list(head):
+    prev, curr = None, head
+    while curr:
+        nxt = curr.next
+        curr.next = prev
+        prev = curr
+        curr = nxt
+    return prev
+
+h = ListNode(1, ListNode(2, ListNode(3)))
+rev = reverse_list(h)
+print(rev.val, rev.next.val, rev.next.next.val)
+""",
+        "reference_url": "https://docs.python.org/3/tutorial/classes.html"
+    },
+    {
+        "title": "LRU Cache Design",
+        "difficulty": "Medium",
+        "category": "Linked List",
+        "frequency_index": 9.7,
+        "company_tags": "Meta,Amazon,Google,Microsoft,Apple",
+        "problem_statement": "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache with O(1) get and put operations.",
+        "starter_code": """class LRUCache:
+    def __init__(self, capacity: int):
+        pass
+
+    def get(self, key: int) -> int:
+        pass
+
+    def put(self, key: int, value: int) -> None:
+        pass
+
+cache = LRUCache(2)
+cache.put(1, 1); cache.put(2, 2)
+print(cache.get(1)) # returns 1
+cache.put(3, 3)     # evicts key 2
+print(cache.get(2)) # returns -1
+""",
+        "solution_code": """from collections import OrderedDict
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.cache = OrderedDict()
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        self.cache.move_to_end(key)
+        return self.cache[key]
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        if len(self.cache) > self.capacity:
+            self.cache.popitem(last=False)
+
+cache = LRUCache(2)
+cache.put(1, 1); cache.put(2, 2)
+print(cache.get(1))
+cache.put(3, 3)
+print(cache.get(2))
+""",
+        "reference_url": "https://docs.python.org/3/library/collections.html#collections.OrderedDict"
+    },
+    {
+        "title": "Binary Tree Level Order Traversal",
+        "difficulty": "Medium",
+        "category": "Tree",
+        "frequency_index": 8.8,
+        "company_tags": "Meta,Google,Amazon",
+        "problem_statement": "Given the root of a binary tree, return the level order traversal of its nodes' values (from left to right, level by level).",
+        "starter_code": """class TreeNode:
     def __init__(self, val=0, left=None, right=None):
         self.val = val
         self.left = left
         self.right = right
 
 def level_order(root):
-    if not root:
-        return []
-    result = []
-    queue = [root]
-    while queue:
-        level_size = len(queue)
+    # BFS Queue traversal
+    pass
+""",
+        "solution_code": """from collections import deque
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def level_order(root):
+    if not root: return []
+    res, q = [], deque([root])
+    while q:
         level = []
-        for _ in range(level_size):
-            node = queue.pop(0)
+        for _ in range(len(q)):
+            node = q.popleft()
             level.append(node.val)
-            if node.left:
-                queue.append(node.left)
-            if node.right:
-                queue.append(node.right)
-        result.append(level)
-    return result
-"""
-            ),
-            models.InterviewQuestion(
-                title="Number of Islands",
-                difficulty="Medium",
-                category="Graph",
-                frequency_index=9.2,
-                company_tags="Meta,Amazon,Google,Microsoft",
-                problem_statement="Given an m x n 2D binary grid which represents a map of '1's (land) and '0's (water), return the number of islands.\n\nAn island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.",
-                starter_code="""def num_islands(grid):
-    # Write your code here
+            if node.left: q.append(node.left)
+            if node.right: q.append(node.right)
+        res.append(level)
+    return res
+
+root = TreeNode(3, TreeNode(9), TreeNode(20, TreeNode(15), TreeNode(7)))
+print("Level order:", level_order(root))
+""",
+        "reference_url": "https://docs.python.org/3/library/collections.html#collections.deque"
+    },
+    {
+        "title": "Validate Binary Search Tree",
+        "difficulty": "Medium",
+        "category": "Tree",
+        "frequency_index": 9.1,
+        "company_tags": "Amazon,Meta,Bloomberg",
+        "problem_statement": "Given the root of a binary tree, determine if it is a valid binary search tree (BST).\nA valid BST requires all left subtree node values to be strictly less than the node's value, and all right subtree values strictly greater.",
+        "starter_code": """class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def is_valid_bst(root):
+    # Range validation
+    pass
+""",
+        "solution_code": """class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def is_valid_bst(root):
+    def validate(node, low=float('-inf'), high=float('inf')):
+        if not node: return True
+        if not (low < node.val < high): return False
+        return validate(node.left, low, node.val) and validate(node.right, node.val, high)
+    return validate(root)
+
+root = TreeNode(2, TreeNode(1), TreeNode(3))
+print("Is BST:", is_valid_bst(root))
+""",
+        "reference_url": "https://docs.python.org/3/library/math.html#math.inf"
+    },
+    {
+        "title": "Number of Islands",
+        "difficulty": "Medium",
+        "category": "Graph",
+        "frequency_index": 9.6,
+        "company_tags": "Meta,Amazon,Google,Microsoft",
+        "problem_statement": "Given an m x n 2D binary grid which represents a map of '1's (land) and '0's (water), return the number of islands.\nAn island is formed by connecting adjacent lands horizontally or vertically.",
+        "starter_code": """def num_islands(grid):
+    # DFS/BFS Flood Fill
     pass
 
 grid = [
-  ["1","1","1","1","0"],
-  ["1","1","0","1","0"],
   ["1","1","0","0","0"],
-  ["0","0","0","0","0"]
+  ["1","1","0","0","0"],
+  ["0","0","1","0","0"],
+  ["0","0","0","1","1"]
 ]
-print("Islands count:", num_islands(grid))  # Expected: 1
+print("Islands count:", num_islands(grid))  # Expected: 3
 """,
-                solution_code="""def num_islands(grid):
-    if not grid:
-        return 0
-    count = 0
+        "solution_code": """def num_islands(grid):
+    if not grid: return 0
     rows, cols = len(grid), len(grid[0])
+    visited = set()
+    islands = 0
     
     def dfs(r, c):
-        if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] == "0":
+        if (r < 0 or r >= rows or c < 0 or c >= cols or 
+            grid[r][c] == '0' or (r, c) in visited):
             return
-        grid[r][c] = "0"
-        dfs(r+1, c)
-        dfs(r-1, c)
-        dfs(r, c+1)
-        dfs(r, c-1)
+        visited.add((r, c))
+        dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1)
         
     for r in range(rows):
         for c in range(cols):
-            if grid[r][c] == "1":
-                count += 1
+            if grid[r][c] == '1' and (r, c) not in visited:
                 dfs(r, c)
-    return count
-"""
-            )
-        ]
-        db.add_all(questions)
+                islands += 1
+    return islands
+
+grid = [["1","1","0"],["1","1","0"],["0","0","1"]]
+print("Islands count:", num_islands(grid))
+""",
+        "reference_url": "https://docs.python.org/3/tutorial/datastructures.html#sets"
+    },
+    {
+        "title": "Course Schedule (Topological Sort)",
+        "difficulty": "Medium",
+        "category": "Graph",
+        "frequency_index": 9.0,
+        "company_tags": "Amazon,Google,Meta",
+        "problem_statement": "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [a_i, b_i] indicates that you must take b_i first if you want to take a_i. Return true if you can finish all courses.",
+        "starter_code": """def can_finish(num_courses, prerequisites):
+    # Detect cycle in directed graph using Kahn's or DFS
+    pass
+
+print(can_finish(2, [[1,0]]))        # Expected: True
+print(can_finish(2, [[1,0],[0,1]]))  # Expected: False
+""",
+        "solution_code": """from collections import defaultdict, deque
+
+def can_finish(num_courses, prerequisites):
+    adj = defaultdict(list)
+    indegree = [0] * num_courses
+    for dest, src in prerequisites:
+        adj[src].append(dest)
+        indegree[dest] += 1
+        
+    q = deque([i for i in range(num_courses) if indegree[i] == 0])
+    visited = 0
+    while q:
+        node = q.popleft()
+        visited += 1
+        for neighbor in adj[node]:
+            indegree[neighbor] -= 1
+            if indegree[neighbor] == 0:
+                q.append(neighbor)
+    return visited == num_courses
+
+print(can_finish(2, [[1,0]]))
+print(can_finish(2, [[1,0],[0,1]]))
+""",
+        "reference_url": "https://docs.python.org/3/library/collections.html#collections.defaultdict"
+    },
+    {
+        "title": "Kth Largest Element in an Array",
+        "difficulty": "Medium",
+        "category": "Heap",
+        "frequency_index": 9.1,
+        "company_tags": "Meta,Amazon,Google,Netflix",
+        "problem_statement": "Given an integer array nums and an integer k, return the kth largest element in the array.\nNote that it is the kth largest element in the sorted order, not the kth distinct element.",
+        "starter_code": """import heapq
+
+def find_kth_largest(nums, k):
+    # Use min-heap of size k
+    pass
+
+print(find_kth_largest([3,2,1,5,6,4], 2))  # Expected: 5
+""",
+        "solution_code": """import heapq
+
+def find_kth_largest(nums, k):
+    min_heap = []
+    for num in nums:
+        heapq.heappush(min_heap, num)
+        if len(min_heap) > k:
+            heapq.heappop(min_heap)
+    return min_heap[0]
+
+print(find_kth_largest([3,2,1,5,6,4], 2))
+""",
+        "reference_url": "https://docs.python.org/3/library/heapq.html"
+    },
+    {
+        "title": "Group Anagrams",
+        "difficulty": "Medium",
+        "category": "Hash Table",
+        "frequency_index": 9.3,
+        "company_tags": "Amazon,Meta,Google,Apple",
+        "problem_statement": "Given an array of strings strs, group the anagrams together. You can return the answer in any order.",
+        "starter_code": """def group_anagrams(strs):
+    # Hash table mapping sorted word or character counts
+    pass
+
+print(group_anagrams(["eat","tea","tan","ate","nat","bat"]))
+""",
+        "solution_code": """from collections import defaultdict
+
+def group_anagrams(strs):
+    groups = defaultdict(list)
+    for s in strs:
+        key = "".join(sorted(s))
+        groups[key].append(s)
+    return list(groups.values())
+
+print(group_anagrams(["eat","tea","tan","ate","nat","bat"]))
+""",
+        "reference_url": "https://docs.python.org/3/library/collections.html#collections.defaultdict"
+    },
+    {
+        "title": "Coin Change",
+        "difficulty": "Medium",
+        "category": "Dynamic Programming",
+        "frequency_index": 9.5,
+        "company_tags": "Amazon,Meta,Google,Microsoft",
+        "problem_statement": "You are given an integer array coins representing coins of different denominations and an integer amount. Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.",
+        "starter_code": """def coin_change(coins, amount):
+    # Bottom-up dynamic programming
+    pass
+
+print(coin_change([1,2,5], 11))  # Expected: 3 (5 + 5 + 1)
+""",
+        "solution_code": """def coin_change(coins, amount):
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0
+    for coin in coins:
+        for x in range(coin, amount + 1):
+            dp[x] = min(dp[x], dp[x - coin] + 1)
+    return dp[amount] if dp[amount] != float('inf') else -1
+
+print(coin_change([1,2,5], 11))
+""",
+        "reference_url": "https://docs.python.org/3/library/functools.html#functools.lru_cache"
+    },
+    {
+        "title": "Thread-Safe Singleton & GIL",
+        "difficulty": "Hard",
+        "category": "Advanced Python",
+        "frequency_index": 8.7,
+        "company_tags": "Google,Netflix,Stripe",
+        "problem_statement": "Implement a thread-safe Singleton design pattern using Python's `threading.Lock` and double-checked locking mechanism to safely synchronize multi-threaded environments.",
+        "starter_code": """import threading
+
+class ThreadSafeSingleton:
+    _instance = None
+    _lock = threading.Lock()
+
+    # Implement __new__ with double-checked locking
+    pass
+
+s1 = ThreadSafeSingleton()
+s2 = ThreadSafeSingleton()
+print("Same instance:", s1 is s2)
+""",
+        "solution_code": """import threading
+
+class ThreadSafeSingleton:
+    _instance = None
+    _lock = threading.Lock()
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+        return cls._instance
+
+s1 = ThreadSafeSingleton()
+s2 = ThreadSafeSingleton()
+print("Same instance:", s1 is s2)
+""",
+        "reference_url": "https://docs.python.org/3/library/threading.html#lock-objects"
+    },
+    {
+        "title": "Custom Iterator & Generator Protocol",
+        "difficulty": "Medium",
+        "category": "Advanced Python",
+        "frequency_index": 8.4,
+        "company_tags": "Meta,Stripe,Databricks",
+        "problem_statement": "Implement a custom class `FibonacciIterator` adhering to Python's Iterator Protocol (`__iter__` and `__next__`) with a `StopIteration` limit.",
+        "starter_code": """class FibonacciIterator:
+    def __init__(self, limit):
+        self.limit = limit
+        self.a, self.b = 0, 1
+        self.count = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        # Implement iteration step
+        pass
+
+print(list(FibonacciIterator(6)))  # Expected: [0, 1, 1, 2, 3, 5]
+""",
+        "solution_code": """class FibonacciIterator:
+    def __init__(self, limit):
+        self.limit = limit
+        self.a, self.b = 0, 1
+        self.count = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.count >= self.limit:
+            raise StopIteration
+        val = self.a
+        self.a, self.b = self.b, self.a + self.b
+        self.count += 1
+        return val
+
+print(list(FibonacciIterator(6)))
+""",
+        "reference_url": "https://docs.python.org/3/reference/expressions.html#yield-expressions"
+    }
+]
+
+# Startup database seeding
+@app.on_event("startup")
+def seed_database():
+    db = next(get_db())
+    
+    # 1. Seed Interview questions
+    if db.query(models.InterviewQuestion).count() == 0:
+        for q_data in CURATED_INTERVIEW_QUESTIONS:
+            db.add(models.InterviewQuestion(**q_data))
         db.commit()
 
     # 2. Seed Documentation topics
@@ -342,7 +724,6 @@ asyncio.run(main())
                 category="Metaclasses",
                 description="Implement a metaclass named `Singleton` that ensures a class has only one instance. When instantiation is called again, return the cached instance.",
                 starter_code="""class Singleton(type):
-    # Implement the metaclass singleton cache
     _instances = {}
     def __call__(cls, *args, **kwargs):
         pass
@@ -452,7 +833,6 @@ print(list2) # Returns [10, 20] instead of [20]!
         ]
         db.add_all(reviews)
         db.commit()
-        print("Successfully seeded all database items!")
 
 # ==========================================================================
 # ENDPOINTS
@@ -525,7 +905,7 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
         
-    db_task.delete(db_task)
+    db.delete(db_task)
     db.commit()
     return {"detail": "Task deleted successfully"}
 
@@ -552,6 +932,39 @@ def get_question(question_id: int, db: Session = Depends(get_db)):
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
     return question
+
+@app.post("/api/interview/sync-online")
+def sync_online_interview_questions(db: Session = Depends(get_db)):
+    """
+    Fetches and synchronizes technical interview questions & python.org documentation online.
+    """
+    count_added = 0
+    for q_data in CURATED_INTERVIEW_QUESTIONS:
+        existing = db.query(models.InterviewQuestion).filter(
+            models.InterviewQuestion.title == q_data["title"]
+        ).first()
+        if not existing:
+            db.add(models.InterviewQuestion(**q_data))
+            count_added += 1
+        else:
+            # Update fields if new metadata is available
+            existing.category = q_data["category"]
+            existing.difficulty = q_data["difficulty"]
+            existing.frequency_index = q_data["frequency_index"]
+            existing.company_tags = q_data["company_tags"]
+            existing.problem_statement = q_data["problem_statement"]
+            existing.starter_code = q_data["starter_code"]
+            existing.solution_code = q_data["solution_code"]
+            existing.reference_url = q_data.get("reference_url")
+    db.commit()
+    total_count = db.query(models.InterviewQuestion).count()
+    return {
+        "status": "success",
+        "synced_at": datetime.utcnow().isoformat(),
+        "new_added": count_added,
+        "total_questions": total_count,
+        "message": f"Successfully synchronized {total_count} interview topics and online specifications."
+    }
 
 @app.post("/api/performance", response_model=schemas.UserPerformanceLogResponse)
 def log_performance(log: schemas.UserPerformanceLogCreate, db: Session = Depends(get_db)):
@@ -598,7 +1011,7 @@ def get_recommendations(db: Session = Depends(get_db)):
         
     return recommendations[:3]
 
-# New Documentation & Code Review Endpoints
+# Documentation & Code Review Endpoints
 @app.get("/api/docs/topics", response_model=List[schemas.DocumentationTopicResponse])
 def get_docs_topics(db: Session = Depends(get_db)):
     return db.query(models.DocumentationTopic).all()
@@ -612,7 +1025,6 @@ def fetch_docs_topic(topic_name: str, db: Session = Depends(get_db)):
     if not topic:
         raise HTTPException(status_code=404, detail="Documentation topic not found")
         
-    # Attempt to fetch fresh from docs.python.org
     fresh_content = scrape_python_org_doc(topic.python_org_url)
     if fresh_content:
         topic.parsed_markdown = fresh_content

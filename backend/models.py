@@ -31,6 +31,7 @@ class InterviewQuestion(Base):
     problem_statement = Column(Text)
     starter_code = Column(Text)
     solution_code = Column(Text)
+    reference_url = Column(String, nullable=True)
 
 class UserPerformanceLog(Base):
     __tablename__ = "user_performance_logs"

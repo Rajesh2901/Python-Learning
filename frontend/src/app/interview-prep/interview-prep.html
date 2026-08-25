@@ -2,7 +2,14 @@
   <div class="prep-header">
     <div class="title-section">
       <h1>3D Interview Preparation Dashboard</h1>
-      <p class="subtitle">Master data structures and algorithm coding interviews visually.</p>
+      <p class="subtitle">Master data structures, algorithms, and advanced Python interview topics visually.</p>
+    </div>
+    <div class="header-sync-controls">
+      <span class="sync-notice-text" *ngIf="syncNotice">{{ syncNotice }}</span>
+      <button (click)="syncOnlineTopics()" class="btn-sync" [disabled]="isSyncing">
+        <span class="sync-icon" [class.spinning]="isSyncing">🌐</span>
+        {{ isSyncing ? 'Syncing Online Specs...' : 'Sync Online Topics' }}
+      </button>
     </div>
   </div>
 
@@ -30,6 +37,8 @@
             <option value="Graph">Graph</option>
             <option value="Heap">Heap</option>
             <option value="Hash Table">Hash Table</option>
+            <option value="Dynamic Programming">Dynamic Programming</option>
+            <option value="Advanced Python">Advanced Python</option>
           </select>
         </div>
       </div>
@@ -88,7 +97,12 @@
         <!-- Problem Statement & Visualizer -->
         <div class="left-workspace-column">
           <div class="statement-card">
-            <h3>Problem Statement</h3>
+            <div class="statement-header-row">
+              <h3>Problem Statement</h3>
+              <a *ngIf="selectedQuestion.reference_url" [href]="selectedQuestion.reference_url" target="_blank" class="ref-link">
+                Official Spec ↗
+              </a>
+            </div>
             <p class="statement-text">{{ selectedQuestion.problem_statement }}</p>
           </div>
           
