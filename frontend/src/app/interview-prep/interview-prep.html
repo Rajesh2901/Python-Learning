@@ -4,33 +4,36 @@
       <h1>3D Interview Preparation Dashboard</h1>
       <p class="subtitle">Master data structures and algorithm coding interviews visually.</p>
     </div>
-    
-    <!-- Smart Search and Filters -->
-    <div class="search-bar-section">
-      <input type="text" [(ngModel)]="searchCompany" (input)="onFilterChange()" placeholder="Search by company (e.g. Meta, Google, Amazon)..." class="search-input" />
-      <select [(ngModel)]="filterDifficulty" (change)="onFilterChange()" class="difficulty-select">
-        <option value="">All Difficulties</option>
-        <option value="Easy">Easy</option>
-        <option value="Medium">Medium</option>
-        <option value="Hard">Hard</option>
-      </select>
-      <select [(ngModel)]="filterCategory" (change)="onFilterChange()" class="category-select">
-        <option value="">All Categories</option>
-        <option value="Array">Array</option>
-        <option value="Linked List">Linked List</option>
-        <option value="Stack/Queue">Stack/Queue</option>
-        <option value="Tree">Tree</option>
-        <option value="Graph">Graph</option>
-        <option value="Heap">Heap</option>
-        <option value="Hash Table">Hash Table</option>
-      </select>
-    </div>
   </div>
 
   <div class="prep-content">
     <!-- Questions List (Left Pane) -->
     <div class="questions-list-panel">
       <h2>Curated Practice Sets</h2>
+
+      <!-- Smart Search and Filters in Sidebar -->
+      <div class="sidebar-filters">
+        <input type="text" [(ngModel)]="searchCompany" (input)="onFilterChange()" placeholder="Search by company (Meta, Google)..." class="search-input-sm" />
+        <div class="select-row">
+          <select [(ngModel)]="filterDifficulty" (change)="onFilterChange()" class="select-sm">
+            <option value="">All Difficulties</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+          <select [(ngModel)]="filterCategory" (change)="onFilterChange()" class="select-sm">
+            <option value="">All Categories</option>
+            <option value="Array">Array</option>
+            <option value="Linked List">Linked List</option>
+            <option value="Stack/Queue">Stack/Queue</option>
+            <option value="Tree">Tree</option>
+            <option value="Graph">Graph</option>
+            <option value="Heap">Heap</option>
+            <option value="Hash Table">Hash Table</option>
+          </select>
+        </div>
+      </div>
+
       <div class="recommendations-box" *ngIf="recommendations.length > 0">
         <h3>💡 Suggested Next for You:</h3>
         <ul>
