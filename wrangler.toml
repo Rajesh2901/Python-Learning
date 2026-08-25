@@ -1,5 +1,5 @@
-name = "python-mastery"
-main = "backend/worker.py"
+name = "python-learning"
+main = "worker.py"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["python_workers"]
 

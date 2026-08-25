@@ -4,6 +4,8 @@ import io
 import sys
 import traceback
 import urllib.parse
+from collections import defaultdict, deque, OrderedDict
+import heapq
 
 CURATED_QUESTIONS = [
     {
@@ -355,7 +357,7 @@ async def on_fetch(request, env):
 
     return make_json_response({"detail": "Not Found"}, 404)
 
-# Alternative handler signatures to support all Cloudflare environments
+# Alternative handler signatures
 async def fetch(request, env):
     return await on_fetch(request, env)
 
